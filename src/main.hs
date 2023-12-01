@@ -1,6 +1,5 @@
 module Main where
 
-import DataStructures
 import PFLTests
 
 -- main will just run all the tests, the function that processes the Code, Stack and State is the run function
@@ -22,17 +21,16 @@ main = do
 
 -- Part 1 of the assignment
 
--- stack2Str :: Stack -> String
-stack2Str = undefined -- TODO, Uncomment all the other function type declarations as you implement them
+stack2Str :: Stack -> String
+stack2Str stack = intercalate "," (map stackValueToString (reverse stack))
 
--- state2Str :: State -> String
-state2Str = undefined -- TODO
+state2Str :: State -> String
+state2Str state = intercalate "," . sort $ map pairToString (toList state)
 
 -- run :: (Code, Stack, State) -> (Code, Stack, State)
 run = undefined -- TODO
 
 -- Part 2
-
 -- TODO: Define the types Aexp, Bexp, Stm and Program
 
 -- compA :: Aexp -> Code
