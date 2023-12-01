@@ -3,7 +3,7 @@ module Main where
 import DataStructures
 import PFLTests
 
--- Shouldn't be called main, the initial code to be ran will be in the run function
+-- main will just run all the tests, the function that processes the Code, Stack and State is the run function
 main :: IO ()
 main = do
   -- Run the assembler tests

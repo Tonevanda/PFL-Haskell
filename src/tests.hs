@@ -4,6 +4,8 @@ module PFLTests where
 testAssembler :: Code -> (String, String)
 testAssembler code = (stack2Str stack, state2Str state)
   where (_,stack,state) = run(code, createEmptyStack, createEmptyState)
+
+-- Assembler tests
 testAssembler [Push 10,Push 4,Push 3,Sub,Mult] == ("-10","")
 testAssembler [Fals,Push 3,Tru,Store "var",Store "a", Store "someVar"] == ("","a=3,someVar=False,var=True")
 testAssembler [Fals,Store "var",Fetch "var"] == ("False","var=False")
@@ -18,6 +20,8 @@ testAssembler [Push 10,Store "i",Push 1,Store "fact",Loop [Push 1,Fetch "i",Equ,
 testParser :: String -> (String, String)
 testParser programCode = (stack2Str stack, state2Str state)
   where (_,stack,state) = run(compile (parse programCode), createEmptyStack, createEmptyState)
+
+-- Parser tests
 testParser "x := 5; x := x - 1;" == ("","x=4")
 testParser "if (not True and 2 <= 5 = 3 == 4) then x :=1 else y := 2" == ("","y=2")
 testParser "x := 42; if x <= 43 then x := 1; else (x := 33; x := x+1;)" == ("","x=1")
