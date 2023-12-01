@@ -27,8 +27,8 @@ With this, you are all set to run the code. Enjoy!
 - [x] Define a new type to represent the machine’s state. The type must be named **State**
 - [x] Implement the **createEmptyStack** function which returns an empty machine’s stack
 - [x] Implement the **createEmptyState** function which returns an empty machine’s state
-- [ ] Implement the **stack2Str** function which converts a stack given as input to a string
-- [ ] Implement the **state2Str** function which converts a machine state given as input to a string
+- [x] Implement the **stack2Str** function which converts a stack given as input to a string
+- [x] Implement the **state2Str** function which converts a machine state given as input to a string
 - [ ] Implement the **add** function which adds the top two integer values of the stack and pushes the result onto the top of the stack
 - [ ] Implement the **mult** function which multiplies the top two integer values of the stack and pushes the result onto the top of the stack
 - [ ] Implement the **sub** function which subtracts the topmost element of the stack with the second topmost element of the stack, and pushes the result onto the top of the stack
