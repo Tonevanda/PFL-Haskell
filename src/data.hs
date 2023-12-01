@@ -2,7 +2,7 @@
 
 module DataStructures where
 
-import qualified Data.Map and HashMap
+import qualified Data.Map.Strict as HashMap
 
 -- This defines the Instructions data type and the type Code, composed of Instructions 
 data Inst =
@@ -13,12 +13,13 @@ type Code = [Inst]
 
 
 -- This defines the Stack data type and functions to operate on Stacks
-type Stack = [Integer]
+data StackValue = IntValue Integer | TT | FF deriving Show
+type Stack = [StackValue]
 
-push :: Integer -> Stack -> Stack
+push :: StackValue -> Stack -> Stack
 push x stack = x : stack
 
-pop :: Stack -> (Maybe Integer, Stack)
+pop :: Stack -> (Maybe StackValue, Stack)
 pop []     = (Nothing, [])
 pop (x:xs) = (Just x, xs)
 
