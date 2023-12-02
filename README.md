@@ -33,7 +33,7 @@ With this, you are all set to run the code. Enjoy!
 - [x] Implement the **mult** function which multiplies the top two integer values of the stack and pushes the result onto the top of the stack
 - [x] Implement the **sub** function which subtracts the topmost element of the stack with the second topmost element of the stack, and pushes the result onto the top of the stack
 - [x] Implement the **eq** function which compares the equality of the top two values of the stack, both integers and boolean, and pushes a boolean with the comparison result onto the top of the stack
-- [ ] Implement the **le** function which determines whether the topmost stack element is less or equal to the second topmost element, and pushes a boolean with the comparison result onto the top of the stack
+- [x] Implement the **le** function which determines whether the topmost stack element is less or equal to the second topmost element, and pushes a boolean with the comparison result onto the top of the stack
 - [ ] Implement the **push-n** function which pushes a constant value n onto the stack; true and false push the constants tt and ff, respectively, onto the stack
 - [ ] Implement the **fetch-x** function which pushes the value bound to **x** onto the stack, with **x** being a variable in the **Storage**, a.k.a **State**
 - [ ] Implement the **store-x** function which pops the topmost element of the stack and updates the storage so that the popped value is bound to **x**
