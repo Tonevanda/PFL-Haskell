@@ -59,7 +59,19 @@ eq stack = let (val1, stackAfterPop1) = pop stack
                 _ -> stack
 
 -- Receives the stack and returns the updated stack
---le :: Stack -> Stack
+le :: Stack -> Stack
+le stack = let (val1, stackAfterPop1) = pop stack
+            in case val1 of
+                Nothing -> stack
+                Just (IntValue i1) ->
+                    let (val2, stackAfterPop2) = pop stackAfterPop1
+                    in case val2 of
+                        Nothing -> stack
+                        Just (IntValue i2) -> 
+                            let value = if i1 <= i2 then TT else FF
+                            in push value stackAfterPop2
+                        _ -> stack
+                _ -> stack
 
 -- Receives a StackValue and the stack and returns the updated stack
 --push :: StackValue -> Stack -> Stack
