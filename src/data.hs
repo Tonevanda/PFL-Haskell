@@ -1,5 +1,3 @@
--- This file contains the data structures and respective functions to aid development of this project
-
 module DataStructures where
 
 import qualified Data.Map.Strict as HashMap
