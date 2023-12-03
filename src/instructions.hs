@@ -1,7 +1,7 @@
 module Instructions where 
 
 import DataStructures
-
+import Data.Map.Strict as HashMap
 
 --- Receives the stack and returns the updated stack
 add :: Stack -> Stack
@@ -82,7 +82,10 @@ push n stack = pushToStack value stack
                     Left i -> IntValue i
 
 -- Receives a Key, the stack and the state and returns the updated stack
---fetch :: Key -> Stack -> State -> Stack
+fetch :: Key -> Stack -> State -> Stack
+fetch key stack state = case HashMap.lookup key state of
+                          Just value -> pushToStack value stack
+                          Nothing -> stack
 
 -- Receives a Key, the stack and the state and returns the updated stack and state
 --store :: Key -> Stack -> State -> Stack -> State
