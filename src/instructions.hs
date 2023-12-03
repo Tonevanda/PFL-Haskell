@@ -12,7 +12,7 @@ add stack = let (val1, stackAfterPop1) = pop stack
                     let (val2, stackAfterPop2) = pop stackAfterPop1
                     in case val2 of
                         Nothing -> stack
-                        Just (IntValue i2) -> DataStructures.push (IntValue (i1 + i2)) stackAfterPop2
+                        Just (IntValue i2) -> pushToStack (IntValue (i1 + i2)) stackAfterPop2
                         _ -> stack
                 _ -> stack
 
@@ -26,7 +26,7 @@ mult stack = let (val1, stackAfterPop1) = pop stack
                     let (val2, stackAfterPop2) = pop stackAfterPop1
                     in case val2 of
                         Nothing -> stack
-                        Just (IntValue i2) -> DataStructures.push (IntValue (i1 * i2)) stackAfterPop2
+                        Just (IntValue i2) -> pushToStack (IntValue (i1 * i2)) stackAfterPop2
                         _ -> stack
                 _ -> stack
 
@@ -39,7 +39,7 @@ sub stack = let (val1, stackAfterPop1) = pop stack
                     let (val2, stackAfterPop2) = pop stackAfterPop1
                     in case val2 of
                         Nothing -> stack
-                        Just (IntValue i2) -> DataStructures.push (IntValue (i1 - i2)) stackAfterPop2
+                        Just (IntValue i2) -> pushToStack (IntValue (i1 - i2)) stackAfterPop2
                         _ -> stack
                 _ -> stack
 
@@ -54,7 +54,7 @@ eq stack = let (val1, stackAfterPop1) = pop stack
                         Nothing -> stack
                         Just (IntValue i2) -> 
                             let value = if i1 == i2 then TT else FF
-                            in DataStructures.push value stackAfterPop2
+                            in pushToStack value stackAfterPop2
                         _ -> stack
                 _ -> stack
 
@@ -69,13 +69,13 @@ le stack = let (val1, stackAfterPop1) = pop stack
                         Nothing -> stack
                         Just (IntValue i2) -> 
                             let value = if i1 <= i2 then TT else FF
-                            in DataStructures.push value stackAfterPop2
+                            in pushToStack value stackAfterPop2
                         _ -> stack
                 _ -> stack
 
 -- Receives a StackValue and the stack and returns the updated stack
 push :: Either Integer Bool -> Stack -> Stack
-push n stack = DataStructures.push value stack
+push n stack = pushToStack value stack
     where value = case n of
                     Right True -> TT
                     Right False -> FF

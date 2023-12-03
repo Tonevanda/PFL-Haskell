@@ -21,8 +21,8 @@ stackValueToString (IntValue i) = show i
 stackValueToString TT = "True"
 stackValueToString FF = "False"
 
-push :: StackValue -> Stack -> Stack
-push x stack = x : stack
+pushToStack :: StackValue -> Stack -> Stack
+pushToStack x stack = x : stack
 
 pop :: Stack -> (Maybe StackValue, Stack)
 pop []     = (Nothing, [])
