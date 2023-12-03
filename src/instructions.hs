@@ -2,6 +2,7 @@ module Instructions where
 
 import DataStructures
 import Data.Map.Strict as HashMap
+import System.Exit (exitSuccess, exitFailure)
 
 --- Receives the stack and returns the updated stack
 add :: Stack -> Stack
@@ -95,7 +96,12 @@ store key stack state = let (value, stackAfterPop) = pop stack
                             Just value -> (stackAfterPop, insertIntoState key value state)
 
 -- Receives 2 code flows and the stack and returns one of the code flows and the updated stack
---branch :: Code -> Code -> Stack -> Code -> Stack
+branch :: Code -> Code -> Stack -> (Code, Stack)
+branch c1 c2 stack = let (value, stackAfterPop) = pop stack
+                        in case value of
+                            Nothing -> (c1,stackAfterPop)
+                            Just value -> let code = if value == TT then c1 else c2
+                                            in (code, stackAfterPop)
 
 -- Receives 2 code flows, the stack and the state and returns the remaining code flow, the updated stack and updated state
 --loop :: Code -> Code -> Stack -> State -> Code -> Stack -> State
