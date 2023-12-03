@@ -47,6 +47,3 @@ createEmptyState = HashMap.empty
 
 insertIntoState :: Key -> Value -> State -> State
 insertIntoState = HashMap.insert
-
-stack2Str :: Stack -> String
-stack2Str stack = intercalate "," (map stackValueToString (reverse stack))
