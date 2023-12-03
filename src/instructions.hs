@@ -88,7 +88,11 @@ fetch key stack state = case HashMap.lookup key state of
                           Nothing -> stack
 
 -- Receives a Key, the stack and the state and returns the updated stack and state
---store :: Key -> Stack -> State -> Stack -> State
+store :: Key -> Stack -> State -> (Stack, State)
+store key stack state = let (value, stackAfterPop) = pop stack
+                        in case value of
+                            Nothing -> (stackAfterPop, state)
+                            Just value -> (stackAfterPop, insertIntoState key value state)
 
 -- Receives 2 code flows and the stack and returns one of the code flows and the updated stack
 --branch :: Code -> Code -> Stack -> Code -> Stack
