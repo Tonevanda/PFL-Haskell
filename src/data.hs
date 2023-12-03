@@ -13,7 +13,7 @@ type Code = [Inst]
 
 
 -- This defines the Stack data type and functions to operate on Stacks
-data StackValue = IntValue Integer | TT | FF deriving Show
+data StackValue = IntValue Integer | TT | FF deriving (Show, Eq)
 type Stack = [StackValue]
 
 stackValueToString :: StackValue -> String
