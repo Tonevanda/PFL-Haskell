@@ -11,6 +11,9 @@ data Inst =
   deriving Show
 type Code = [Inst]
 
+popCode :: Code -> (Maybe Inst, Code)
+popCode []     = (Nothing, [])
+popCode (x:xs) = (Just x, xs)
 
 -- This defines the Stack data type and functions to operate on Stacks
 data StackValue = IntValue Integer | TT | FF deriving (Show, Eq)
