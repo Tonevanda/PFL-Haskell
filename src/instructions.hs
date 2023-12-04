@@ -106,5 +106,6 @@ branch c1 c2 stack = let (value, stackAfterPop) = pop stack
 -- Receives 2 code flows, the stack and the state and returns the remaining code flow, the updated stack and updated state
 --loop :: Code -> Code -> Stack -> State -> Code -> Stack -> State
 
--- ??????
---noop :: 
+-- Dummy function that receives the stack and state and returns them both
+noop :: Stack -> State -> (Stack, State)
+noop stack state = (stack, state)
