@@ -105,8 +105,10 @@ branch c1 c2 stack = let (value, stackAfterPop) = pop stack
 
 -- Receives 2 code flows, the stack and the state and returns the remaining code flow, the updated stack and updated state
 loop :: Code -> Code -> Code
-loop c1 c2 = c1 ++ [Branch c2 [Loop c1 c2], Noop]
+loop c1 c2 = c1 ++ [Branch (c2 ++ [Loop c1 c2]) [Noop]]
 
 -- Dummy function that receives the stack and state and returns them both
 noop :: Stack -> State -> (Stack, State)
 noop stack state = (stack, state)
+
+--[true, branch([noop, loop([true], [noop])], [noop])]

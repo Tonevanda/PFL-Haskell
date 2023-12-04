@@ -11,15 +11,15 @@ import Data.ByteString.Char8 (putStrLn)
 -- main will just run all the tests, the function that processes the Code, Stack and State is the run function
 main :: IO ()
 main = do
-    let (newCode, newStack, newState) = run (code, stack, state)
+    (newCode, newStack, newState) <- run (code, stack, state)
     Prelude.putStrLn "Done!"
     Prelude.putStrLn $ "Code: " ++ show newCode
     Prelude.putStrLn $ "Stack: " ++ stack2Str newStack
     Prelude.putStrLn $ "State: " ++ state2Str newState
     where
-        code = [Push 10, Push 4, Push 3, Sub, Mult]
-        stack = [IntValue 0]
-        state = HashMap.fromList [("var", IntValue 0), ("a", IntValue 0), ("someVar", IntValue 0)]
+        code = [Loop [Tru] [Noop]]
+        stack = createEmptyStack
+        state = createEmptyState
   -- Run the assembler tests
   --putStrLn "Running Assembler Tests:\n"
   --putStrLn $ "Test 1: " ++ show (testAssembler [Push 10, Push 4, Push 3, Sub, Mult] == ("-10", ""))
@@ -44,9 +44,11 @@ state2Str state = intercalate "," . sort $ map pairToString (toList state)
 
 
 
-run :: (Code, Stack, State) -> (Code, Stack, State)
-run ([], stack, state) = ([], stack, state)
-run (instruction:remainingCode, stack, state) = 
+run :: (Code, Stack, State) -> IO (Code, Stack, State)
+run ([], stack, state) = return ([], stack, state)
+run (instruction:remainingCode, stack, state) = do
+    Prelude.putStrLn $ "Current instruction: " ++ show instruction
+    Prelude.putStrLn $ "Remaining code: " ++ show (instruction:remainingCode)
     case instruction of
         Push n -> run (remainingCode, push (Left n) stack, state)
         Add -> run (remainingCode, add stack, state)
@@ -61,7 +63,7 @@ run (instruction:remainingCode, stack, state) =
         Fetch key -> run (remainingCode, fetch key stack state, state)
         Store key -> let (newStack, newState) = store key stack state in run (remainingCode, newStack, newState)
         Noop -> let (newStack, newState) = noop stack state in run (remainingCode, newStack, newState)
-        Branch code1 code2 -> let (newCode, newStack) = branch code1 code2 stack in run (newCode, newStack, state)
+        Branch code1 code2 -> let (remainingCode, newStack) = branch code1 code2 stack in run (remainingCode, newStack, state)
         Loop code1 code2 -> run (loop code1 code2, stack, state)
 
 -- Part 2
