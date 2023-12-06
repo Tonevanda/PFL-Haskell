@@ -20,17 +20,6 @@ main = do
         code = [Loop [Tru] [Noop]]
         stack = createEmptyStack
         state = createEmptyState
-  -- Run the assembler tests
-  --putStrLn "Running Assembler Tests:\n"
-  --putStrLn $ "Test 1: " ++ show (testAssembler [Push 10, Push 4, Push 3, Sub, Mult] == ("-10", ""))
-  --putStrLn $ "Test 2: " ++ show (testAssembler [Fals, Push 3, Tru, Store "var", Store "a", Store "someVar"] == ("", "a=3,someVar=False,var=True"))
-  -- Add more tests as needed
-
-  -- Run the parser tests
-  --putStrLn "\nRunning Parser Tests:\n"
-  --putStrLn $ "Test 1: " ++ show (testParser "x := 5; x := x - 1;" == ("", "x=4"))
-  --putStrLn $ "Test 2: " ++ show (testParser "if (not True and 2 <= 5 = 3 == 4) then x :=1 else y := 2" == ("", "y=2"))
-  -- Add more tests as needed
 
 
 
