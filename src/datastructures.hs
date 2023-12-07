@@ -1,4 +1,4 @@
-module DataStructures where
+module Datastructures where
 
 import qualified Data.Map.Strict as HashMap
 import Data.List (intercalate, sort)
@@ -34,6 +34,9 @@ pop (x:xs) = (Just x, xs)
 createEmptyStack :: Stack
 createEmptyStack = []
 
+stack2Str :: Stack -> String
+stack2Str stack = intercalate "," (map stackValueToString stack)
+
 -- This defines the State data type (Storage) and functions to operate on it
 type Key = String
 type Value = StackValue
@@ -50,3 +53,6 @@ createEmptyState = HashMap.empty
 
 insertIntoState :: Key -> Value -> State -> State
 insertIntoState = HashMap.insert
+
+state2Str :: State -> String
+state2Str state = intercalate "," . sort $ map pairToString (toList state)
