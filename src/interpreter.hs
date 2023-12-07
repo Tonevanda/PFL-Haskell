@@ -2,7 +2,6 @@ module Interpreter where
 
 import Datastructures
 import Data.Map.Strict as HashMap
-import System.Exit (exitSuccess, exitFailure)
 
 --- Receives the stack and returns the updated stack
 add :: Stack -> Stack
