@@ -3,6 +3,7 @@ module Instructions where
 import DataStructures
 import Data.Map.Strict as HashMap
 import System.Exit (exitSuccess, exitFailure)
+import DataStructures (pushToStack)
 
 --- Receives the stack and returns the updated stack
 add :: Stack -> Stack
@@ -72,6 +73,24 @@ le stack = let (val1, stackAfterPop1) = pop stack
                             let value = if i1 <= i2 then TT else FF
                             in pushToStack value stackAfterPop2
                         _ -> stack
+                _ -> stack
+
+and :: Stack -> Stack
+and stack = let (val1, stackAfterPop1) = pop stack
+            in case val1 of
+                Nothing -> stack
+                Just TT ->
+                    let (val2, stackAfterPop2) = pop stackAfterPop1
+                    in case val2 of
+                        Nothing -> stack
+                        Just TT -> pushToStack TT stackAfterPop2
+                        Just FF -> pushToStack FF stackAfterPop2
+                Just FF ->
+                    let (val2, stackAfterPop2) = pop stackAfterPop1
+                    in case val2 of
+                        Nothing -> stack
+                        Just FF -> pushToStack FF stackAfterPop2
+                        Just TT -> pushToStack FF stackAfterPop2
                 _ -> stack
 
 -- Receives a StackValue and the stack and returns the updated stack
