@@ -1,4 +1,4 @@
-module Interpreter where 
+module Interpreter where
 
 import Datastructures
 import Data.Map.Strict as HashMap
@@ -79,7 +79,7 @@ le stack = let (val1, stackAfterPop1) = pop stack
                     let (val2, stackAfterPop2) = pop stackAfterPop1
                     in case val2 of
                         Nothing -> stack
-                        Just (IntValue i2) -> 
+                        Just (IntValue i2) ->
                             let value = if i1 <= i2 then TT else FF
                             in pushToStack value stackAfterPop2
                         _ -> stack
@@ -115,7 +115,7 @@ neg stack = let (val1, stackAfterPop1) = pop stack
 
 -- Receives a StackValue and the stack and returns the updated stack
 push :: Either Integer Bool -> Stack -> Stack
-push n stack = pushToStack value stack
+push n = pushToStack value
     where value = case n of
                     Right True -> TT
                     Right False -> FF
