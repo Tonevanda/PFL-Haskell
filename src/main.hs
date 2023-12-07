@@ -1,71 +1,19 @@
-import DataStructures
-import Instructions
-import Data.List (intercalate, sort)
-import Data.Map (toList)
-import qualified Data.Map.Strict as HashMap
-import Data.Bool (Bool(False))
-import Data.ByteString.Char8 (putStrLn)
+module Main where
 
---import PFLTests
+import Datastructures
+import Interpreter
+import Compiler
+import Tests
 
 -- main will just run all the tests, the function that processes the Code, Stack and State is the run function
 main :: IO ()
 main = do
-    (newCode, newStack, newState) <- run (code, stack, state)
-    Prelude.putStrLn "Done!"
-    Prelude.putStrLn $ "Code: " ++ show newCode
-    Prelude.putStrLn $ "Stack: " ++ stack2Str newStack
-    Prelude.putStrLn $ "State: " ++ state2Str newState
-    where
-        code = [Loop [Tru] [Noop]]
-        stack = createEmptyStack
-        state = createEmptyState
-
-
-
--- Part 1 of the assignment
-
-stack2Str :: Stack -> String
-stack2Str stack = intercalate "," (map stackValueToString stack)
-
-state2Str :: State -> String
-state2Str state = intercalate "," . sort $ map pairToString (toList state)
-
-
-
-run :: (Code, Stack, State) -> IO (Code, Stack, State)
-run ([], stack, state) = return ([], stack, state)
-run (instruction:remainingCode, stack, state) = do
-    Prelude.putStrLn $ "Current instruction: " ++ show instruction
-    Prelude.putStrLn $ "Remaining code: " ++ show (instruction:remainingCode)
-    case instruction of
-        Push n -> run (remainingCode, push (Left n) stack, state)
-        Add -> run (remainingCode, add stack, state)
-        Mult -> run (remainingCode, mult stack, state)
-        Sub -> run (remainingCode, sub stack, state)
-        Tru -> run (remainingCode, push (Right True) stack, state)
-        Fals -> run (remainingCode, push (Right False) stack, state)
-        Equ -> run (remainingCode, eq stack, state)
-        Le -> run (remainingCode, le stack, state)
-        --And -> run (remainingCode, and stack, state)
-        --Neg -> run (remainingCode, neg stack, state)
-        Fetch key -> run (remainingCode, fetch key stack state, state)
-        Store key -> let (newStack, newState) = store key stack state in run (remainingCode, newStack, newState)
-        Noop -> let (newStack, newState) = noop stack state in run (remainingCode, newStack, newState)
-        Branch code1 code2 -> let (remainingCode, newStack) = branch code1 code2 stack in run (remainingCode, newStack, state)
-        Loop code1 code2 -> run (loop code1 code2, stack, state)
-
--- Part 2
--- TODO: Define the types Aexp, Bexp, Stm and Program
-
--- compA :: Aexp -> Code
---compA = undefined -- TODO
-
--- compB :: Bexp -> Code
---compB = undefined -- TODO
-
--- compile :: Program -> Code
---compile = undefined -- TODO
-
--- parse :: String -> Program
---parse = undefined -- TODO
+    print $ testAssembler [Push 10,Push 4,Push 3,Sub,Mult] == ("-10","")
+    print $ testAssembler [Fals,Push 3,Tru,Store "var",Store "a", Store "someVar"] == ("","a=3,someVar=False,var=True")
+    print $ testAssembler [Fals,Store "var",Fetch "var"] == ("False","var=False")
+    print $ testAssembler [Push (-20),Tru,Fals] == ("False,True,-20","")
+    print $ testAssembler [Push (-20),Tru,Tru,Neg] == ("False,True,-20","")
+    print $ testAssembler [Push (-20),Tru,Tru,Neg,Equ] == ("False,-20","")
+    print $ testAssembler [Push (-20),Push (-21), Le] == ("True","")
+    print $ testAssembler [Push 5,Store "x",Push 1,Fetch "x",Sub,Store "x"] == ("","x=4")
+    print $ testAssembler [Push 10,Store "i",Push 1,Store "fact",Loop [Push 1,Fetch "i",Equ,Neg] [Fetch "i",Fetch "fact",Mult,Store "fact",Push 1,Fetch "i",Sub,Store "i"]] == ("","fact=3628800,i=1")
