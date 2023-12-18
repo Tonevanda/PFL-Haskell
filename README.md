@@ -47,15 +47,15 @@ With this, you are all set to run the code. Enjoy!
 
 ### Second Part
 
-- [ ] Define three datas in Haskell to represent expressions and statements of this imperative language:
-  - [ ] *Aexp* for arithmetic expressions
-  - [ ] *Bexp* for boolean expressions
-  - [ ] *Stm* for statements
+- [x] Define three datas in Haskell to represent expressions and statements of this imperative language:
+  - [x] *Aexp* for arithmetic expressions
+  - [x] *Bexp* for boolean expressions
+  - [x] *Stm* for statements
 - [ ] Define a compiler from a program in this small imperative language into a list of machine instructions. 
   - [ ] The main compiler function: **compile**
   - [ ] A function that compiles arithmetic expressions: **compA**
   - [ ] A function that compiles boolean expressions: **compB**
-- [ ] Define an auxiliary function called **lexer** that splits the string into a list of words. Example: **lexer ”23 + 4 * 421” = [”23”,”+”,”4”,”*”,”421”]**
+- [x] Define an auxiliary function called **lexer** that splits the string into a list of words. Example: **lexer ”23 + 4 * 421” = [”23”,”+”,”4”,”*”,”421”]**
 - [ ] Define a parser which transforms an imperative program represented as a string into its corresponding representation in the ***Stm*** data (a list of statements *Stm*). The string representing the program has the following synctactic constraints:
   - [ ] All statements end with a semicolon (;)
   - [ ] The string must contain spaces between each element, but does not include newlines nor tabs
