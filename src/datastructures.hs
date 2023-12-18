@@ -4,16 +4,28 @@ import qualified Data.Map.Strict as HashMap
 import Data.List (intercalate, sort)
 import Data.Map (toList)
 
+--------- INTERPRETER --------------
+
 -- This defines the Instructions data type and the type Code, composed of Instructions 
 data Inst =
-  Push Integer | Add | Mult | Sub | Tru | Fals | Equ | Le | And | Neg | Fetch String | Store String | Noop |
-  Branch Code Code | Loop Code Code
+  Push Integer 
+  | Add 
+  | Mult 
+  | Sub 
+  | Tru 
+  | Fals 
+  | Equ
+  | Le 
+  | And 
+  | Neg 
+  | Fetch String 
+  | Store String 
+  | Noop 
+  | Branch Code Code 
+  | Loop Code Code
   deriving Show
-type Code = [Inst]
 
-popCode :: Code -> (Maybe Inst, Code)
-popCode []     = (Nothing, [])
-popCode (x:xs) = (Just x, xs)
+type Code = [Inst]
 
 -- This defines the Stack data type and functions to operate on Stacks
 data StackValue = IntValue Integer | TT | FF deriving (Show, Eq)
@@ -23,13 +35,6 @@ stackValueToString :: StackValue -> String
 stackValueToString (IntValue i) = show i
 stackValueToString TT = "True"
 stackValueToString FF = "False"
-
-pushToStack :: StackValue -> Stack -> Stack
-pushToStack x stack = x : stack
-
-pop :: Stack -> (Maybe StackValue, Stack)
-pop []     = (Nothing, [])
-pop (x:xs) = (Just x, xs)
 
 createEmptyStack :: Stack
 createEmptyStack = []
@@ -56,3 +61,35 @@ insertIntoState = HashMap.insert
 
 state2Str :: State -> String
 state2Str state = intercalate "," . sort $ map pairToString (toList state)
+
+
+--------- COMPILER --------------
+
+-- Arithmetic expressions
+data Aexp
+    = Num Integer         -- a number
+    | Var String          -- a variable
+    | AddExp Aexp Aexp       -- addition
+    | SubExp Aexp Aexp       -- subtraction
+    | MultExp Aexp Aexp       -- multiplication
+    deriving Show
+
+-- Boolean expressions
+data Bexp
+    = Tr                 -- true
+    | Fls                 -- false
+    | Not Bexp            -- negation
+    | AndExp Bexp Bexp       -- logical and
+    | LeExp Aexp Aexp        -- less than or equal to
+    | EquExp Aexp Aexp       -- equality
+    deriving Show
+
+-- Statements
+data Stm
+    = Assign String Aexp  -- assignment
+    | If Bexp Stm Stm     -- if statement
+    | While Bexp Stm      -- while loop
+    | NoopStm                -- do nothing
+    deriving Show
+
+type Program = [Stm]
