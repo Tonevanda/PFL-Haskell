@@ -18,6 +18,10 @@ runAllAssemblerTests = do
     print $ testAssembler [Push (-20),Push (-21), Le] == ("True","")
     print $ testAssembler [Push 5,Store "x",Push 1,Fetch "x",Sub,Store "x"] == ("","x=4")
     print $ testAssembler [Push 10,Store "i",Push 1,Store "fact",Loop [Push 1,Fetch "i",Equ,Neg] [Fetch "i",Fetch "fact",Mult,Store "fact",Push 1,Fetch "i",Sub,Store "i"]] == ("","fact=3628800,i=1")
+    
+    --These should throw run-time errors:
+    --print $ testAssembler [Push 1,Push 2,And]
+    --print $ testAssembler [Tru,Tru,Store "y", Fetch "x",Tru]
 
 --testParser :: String -> (String, String)
 --testParser programCode = (stack2Str stack, state2Str state)
