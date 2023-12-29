@@ -2,6 +2,7 @@ module Tests where
 
 import Datastructures
 import Interpreter
+import Compiler
 
 testAssembler :: Code -> (String, String)
 testAssembler code = (stack2Str stack, state2Str state)
@@ -23,13 +24,14 @@ runAllAssemblerTests = do
     --print $ testAssembler [Push 1,Push 2,And]
     --print $ testAssembler [Tru,Tru,Store "y", Fetch "x",Tru]
 
---testParser :: String -> (String, String)
---testParser programCode = (stack2Str stack, state2Str state)
---  where (_,stack,state) = run(compile (parse programCode), createEmptyStack, createEmptyState)
+testParser :: String -> (String, String)
+testParser programCode = (stack2Str stack, state2Str state)
+  where (_,stack,state) = run(compB (fst(parseBexp (lexer programCode))), createEmptyStack, createEmptyState)
 
 
---runAllParserTests :: IO ()
---runAllParserTests = do
+runAllParserTests :: IO ()
+runAllParserTests = do
+  print $ testParser "not True and True = False" == ("False","")
 -- print $ testParser "x := 5; x := x - 1;" == ("","x=4")
 -- print $ testParser "x := 0 - 2;" == ("","x=-2")
 -- print $ testParser "if (not True and 2 <= 5 = 3 == 4) then x :=1; else y := 2;" == ("","y=2")

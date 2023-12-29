@@ -81,7 +81,8 @@ data Bexp
     | Not Bexp            -- negation
     | AndExp Bexp Bexp       -- logical and
     | LeExp Aexp Aexp        -- less than or equal to
-    | EquExp Aexp Aexp       -- equality
+    | EquExp Bexp Bexp       -- compare
+    | DoubleEqu Aexp Aexp    -- equality
     deriving Show
 
 -- Statements
