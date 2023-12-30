@@ -1,6 +1,5 @@
 # Assembly compiler in Haskell
 
-
 ## Developers
 
 This project was developed by the group T1_G08, composed by:
@@ -19,7 +18,110 @@ To run this project, you need to:
 
 With this, you are all set to run the code. Enjoy!
 
-## TODO List
+## Data Structures
+
+We have created several different data structures to support and facilitate the development of this project. These structures include the following:
+
+
+### Code
+
+The **Inst** data type represents the intructions supported by this small imperative language. It includes the following instructions:
+
+- Push **Integer**, which pushes a constant onto the stack
+- Add, which adds the two topmost elements of the stack
+- Mult, which multiplies the two topmost elements of the stack 
+- Sub, which substracts the two topmost elements of the stack
+- Tru, which pushes the constant TT onto the stack
+- Fals, which pushes the constant FF onto the stack
+- Equ, which compares the equality of the two topmost elements of the stack
+- Le, which checks if the topmost element of the stack is less or equal to the second topmost element of the stack
+- And, which does the logical **AND** operation on the two topmost elements of the stack 
+- Neg, which does the logical negation on the topmost element of the stack 
+- Fetch **String**, which retrieves a variable from the storage
+- Store **String**, which stores a variable in the storage
+- Noop, which is a dummy operation 
+- Branch **Code** **Code**, which branches the code depending on the truth value on top of the stack
+- Loop **Code** **Code**, which represents a while loop.
+
+The type **Code** was defined to represent the list of instructions, in other words, the code that is going to be processed.
+
+More information on the details of each instruction [here](#first-part)
+
+
+### Stack
+
+The **StackValue** data type represents the values that compose a stack such as **Integers** and both **TT** and **FF**, which represent truth values, **True** and **False**, respectively.
+
+The type **Stack** represents an ordinary stack, composed of **StackValues**, in this case.<br>
+
+We also created 3 functions pertaining to the **Stack**:
+
+- `stackValueToString :: StackValue -> String`. This function utilizes pattern-matching to differentiate how to map a **StackValue** to a printable value on the terminal.
+- `createEmptyStack :: Stack`. Very self-explanatory, creates an empty stack.
+- `stack2Str :: Stack -> String`. This function iterates through the stack and prints it to the terminal. We used the **intercalate** function in the **Data.List** module to facilitate this.
+
+
+### State
+
+The **State** type represents the internal storage where variables are stored. To implement this type we used a **HashMap**, which receives a **Key**, which is a string, and a **Value**, which is a **StackValue**.
+
+We created 4 functions pertaining to the **State**:
+
+- `pairToString :: (String, StackValue) -> String`. This functions is similar to the `stackValueToString` function, where its goal is to map a pair from the **State** to a printable value on the terminal, using pattern-matching.
+- `createEmptyState`. Also very self-explanatory, creates an empty state using the `HashMap.empty` function
+- `insertIntoState :: Key -> Value -> State -> State`. This function calls the `HashMap.insert` function to insert a Key Value pair into the state
+- `state2Str :: State -> String`. Similar to the `stack2Str` function. Iterates through the state and prints it to the terminal.
+
+
+### Program
+
+To represent the **Program** to be compiled we created several different data types, namely **Aexp**, which represents **Arithmetic** expressions, **Bexp**, which represents **Boolean** expressions, and **Stm**, which represents the statements of this imperative language, **Assign**, **If**, **While** and **NoopStm**.
+
+The **Aexp** data type contains the following:
+
+- Num **Integer**, which represents a number
+- Var **String**, which represents a variable
+- AddExp **Aexp** **Aexp**, which represents the addition of two other Arithmetic expressions
+- SubExp **Aexp** **Aexp**, which represents the subtraction of two other Arithmetic expressions
+- MultExp **Aexp** **Aexp**, which represents the multiplication of two other Arithmetic expressions
+
+The **Bexp** data type contains the following:
+
+- Tr, which represents TT, or True
+- Fls, which represents FF, or False
+- Not **Bexp**, which represents the negation of another Boolean expression
+- AndExp **Bexp** **Bexp**, which represents the logical **AND** operation between two Boolean expressions
+- LeExp **Aexp** **Aexp**, which represents the ***less than or equal*** comparison between two Arithmetic expressions
+- EquExp **Bexp** **Bexp**, which represents the ***equality*** comparison between two Boolean expressions, e.g True = True
+- DoubleEqu **Aexp** **Aexp**, which represents the ***equality*** comparison between two Arithmetic expressions, e.g 1 == 1
+
+The **Stm** data type contains the following:
+
+- Assign **String** **Aexp**, which represents the variable assignment operation, e.g y:= 1+2
+- If **Bexp** **Program** **Program**, which represents an If Then Else statement, e.g If (x<=1) Then x:=0 Else x:=2 
+- While **Bexp** **Program**, which represents a While Do statement, e.g While (True) Do x:= x + 1
+
+The **Program** type is a list of statements.
+
+## Interpreter
+
+To implement the interpreter for this imperative language, we applied pattern-matching to the run function, check the head of the **Code** list for every possible instruction and executing it accordingly.
+
+We also used the same pattern-matching strategy to check if the stack had invalid arguments for a certain instruction, and if so we throw a **Run-time error**.
+
+For example, here is the **Le** run function:
+
+```haskell
+run (Le:remainingCode, IntValue i1:IntValue i2:stack, state) = run (remainingCode, value:stack, state)
+    where value = if i1 <= i2 then TT else FF
+run (Le:remainingCode, _:_:stack, state) = error "Run-time error"
+```
+
+Because **Le** uses the two topmost values of the stack, which have to be **IntValue**, the main function that is going to execute the **Le** instruction is the first pattern-matching, which contains **Le** at the top of the **Code** list, meaning it is the next instruction to be processed, and the stack contains **IntValue** i1 and **IntValue** i2 at the top. In this case, we recursively call **run** again with the remaning code and with a new stack, with its topmost element depending on wether or not i1 is less than or equal to i2.
+
+If this pattern for the **Le** run function does not match, it means the two topmost values of the stack are not both **IntValues**, in that case we call the **error** function with the "Run-time error" string.
+
+## Extra Information
 
 ### First Part
 
@@ -53,8 +155,8 @@ With this, you are all set to run the code. Enjoy!
   - [x] *Stm* for statements
 - [ ] Define a compiler from a program in this small imperative language into a list of machine instructions. 
   - [ ] The main compiler function: **compile**
-  - [ ] A function that compiles arithmetic expressions: **compA**
-  - [ ] A function that compiles boolean expressions: **compB**
+  - [x] A function that compiles arithmetic expressions: **compA**
+  - [x] A function that compiles boolean expressions: **compB**
 - [x] Define an auxiliary function called **lexer** that splits the string into a list of words. Example: **lexer ”23 + 4 * 421” = [”23”,”+”,”4”,”*”,”421”]**
 - [ ] Define a parser which transforms an imperative program represented as a string into its corresponding representation in the ***Stm*** data (a list of statements *Stm*). The string representing the program has the following synctactic constraints:
   - [ ] All statements end with a semicolon (;)
