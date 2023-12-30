@@ -68,7 +68,7 @@ The **State** type represents the internal storage where variables are stored. T
 We created 4 functions pertaining to the **State**:
 
 - `pairToString :: (String, StackValue) -> String`. This functions is similar to the `stackValueToString` function, where its goal is to map a pair from the **State** to a printable value on the terminal, using pattern-matching.
-- `createEmptyState`. Also very self-explanatory, creates an empty state using the `HashMap.empty` function
+- `createEmptyState :: State`. Also very self-explanatory, creates an empty state using the `HashMap.empty` function
 - `insertIntoState :: Key -> Value -> State -> State`. This function calls the `HashMap.insert` function to insert a Key Value pair into the state
 - `state2Str :: State -> String`. Similar to the `stack2Str` function. Iterates through the state and prints it to the terminal.
 
@@ -105,7 +105,7 @@ The **Program** type is a list of statements.
 
 ## Interpreter
 
-To implement the interpreter for this imperative language, we applied pattern-matching to the run function, check the head of the **Code** list for every possible instruction and executing it accordingly.
+To implement the interpreter for this imperative language, we applied pattern-matching to the run function, checking the head of the **Code** list for every possible instruction and executing it accordingly.
 
 We also used the same pattern-matching strategy to check if the stack had invalid arguments for a certain instruction, and if so we throw a **Run-time error**.
 
