@@ -1,7 +1,7 @@
 module Compiler where
 
 import Datastructures
-import Data.Char (isDigit)
+import Data.Char (isDigit, isAlpha)
 import Text.Parsec (tokens)
 
 compA :: Aexp -> Code
@@ -42,18 +42,41 @@ lexer (c:cs)
                                     in word : lexer rest
 
 
+isAllLetters :: String -> Bool
+isAllLetters = all isAlpha
+
+isAllNumbers :: String -> Bool
+isAllNumbers = all isDigit
+
 type Parser a = [String] -> (a, [String])
 
-{-
-parseAexp :: Parser Aexp
-parseAexp tokens = case parseTerm tokens of
-    Just (term, "-":tokens') -> case parseAexp tokens' of
-        Just (aexp, tokens'') -> Just (SubExp term aexp, tokens'')
-        _ -> Just (term, tokens')
-    Just (term, tokens') -> Just (term, tokens')
-    _ -> Nothing
--}
 
+parseAexp :: Parser Aexp
+parseAexp tokens = case break (== "*") (reverse tokens) of
+    (secondSegment, "*":firstSegment) | check (reverse firstSegment) -> (MultExp (fst (parseAexp (reverse firstSegment))) (fst (parseAexp (reverse secondSegment))),[])
+    _ -> case break (== "+") (reverse tokens) of
+        (secondSegment, "+":firstSegment) | check (reverse firstSegment) -> (AddExp (fst (parseAexp (reverse firstSegment))) (fst (parseAexp (reverse secondSegment))),[])
+        _ -> case break (== "-") (reverse tokens) of
+            (secondSegment, "-":firstSegment) | check (reverse firstSegment) -> (SubExp (fst (parseAexp (reverse firstSegment))) (fst (parseAexp (reverse secondSegment))),[])
+            _ -> case break isAllNumbers (reverse tokens) of
+                (_, number:firstSegment) | check (reverse firstSegment) -> (Num (read number),[])
+                _ -> case break isAllLetters (reverse tokens) of
+                    (_, name:firstSegment) | check (reverse firstSegment) -> (Var name,[])
+                    _->case break (== "(") (reverse tokens) of
+                        (middleAfter, "(":_) -> case break (==")") (reverse middleAfter) of
+                            (middle, ")":_) -> parseAexp middle
+                            _ -> (Num 0,[])
+                        _->(Num 0,[])
+
+
+
+breakOnElse :: ([String], [String]) -> Int -> ([String], [String])
+breakOnElse (_, []) _ = ([], [])
+breakOnElse (left, x:right) count
+    | x == "if" = breakOnElse (left ++ [x], right) (count+1)
+    | x == "else" && (count /= 0) = breakOnElse (left ++ [x], right) (count-1)   
+    | x == "else" = (left, x:right)
+    | otherwise = breakOnElse (left ++ [x], right) count
 
 check :: [String] -> Bool
 check [] = True
@@ -62,19 +85,17 @@ check (x:xs)
     | otherwise = check xs
 
 check' :: [String] -> Int -> Bool
-check' [] count = count < 0
+check' [] count = count <= 0
 check' (x:xs) count
     | x == "(" = check' xs (count + 1)
     | x == ")" = check' xs (count - 1)
     | otherwise = check' xs count
 
-parseAexp :: Parser Aexp
-parseAexp tokens = undefined
 
 parseBexp :: Parser Bexp
 parseBexp tokens = case break (== "and") (reverse tokens) of
-    (secondSegment, "and":firstSegment) | check (reverse firstSegment) -> (AndExp  (fst (parseBexp (reverse firstSegment))) (fst(parseBexp (reverse secondSegment))),[])
-    _ -> case break (== "=") (reverse tokens) of 
+    (secondSegment, "and":firstSegment) | check (reverse firstSegment) -> (AndExp  (fst (parseBexp (reverse firstSegment))) (fst (parseBexp (reverse secondSegment))),[])
+    _ -> case break (== "=") (reverse tokens) of
         (secondSegment, "=":firstSegment) | check (reverse firstSegment) -> (EquExp (fst (parseBexp (reverse firstSegment))) (fst (parseBexp (reverse secondSegment))),[])
         _ -> case break (== "not") (reverse tokens) of
             (secondSegment, "not":firstSegment) | check (reverse firstSegment) -> (Not (fst (parseBexp (reverse secondSegment))),[])
@@ -83,35 +104,26 @@ parseBexp tokens = case break (== "and") (reverse tokens) of
                 _ -> case break (== "<=") (reverse tokens) of
                     (secondSegment, "<=":firstSegment) | check (reverse firstSegment) -> (LeExp (fst (parseAexp (reverse firstSegment))) (fst (parseAexp (reverse secondSegment))),[])
                     _ -> case break (== "True") (reverse tokens) of
-                        (secondSegment, "True":firstSegment) | check (reverse firstSegment) -> (Tr,[])
+                        (_, "True":firstSegment) | check (reverse firstSegment) -> (Tr,[])
                         _ -> case break (== "False") (reverse tokens) of
-                            (secondSegment, "False":firstSegment) | check (reverse firstSegment) -> (Fls,[])
+                            (_, "False":firstSegment) | check (reverse firstSegment) -> (Fls,[])
                             _->case break (== "(") (reverse tokens) of
-                                (middleAfter, "(":_) -> case break(==")") (reverse middleAfter) of
+                                (middleAfter, "(":_) -> case break (==")") (reverse middleAfter) of
                                     (middle, ")":_) -> parseBexp middle
                                     _ -> (Fls,[])
                                 _->(Fls,[])
-                            
-{-
+
+
 parseIf :: Parser Program
 parseIf ("if":tokens) = case break (=="then") tokens of
-    (ifStm , rest) -> case parseBexp ifStm of
-        Just (bexp, _) -> case parseProgram rest of
-            
-        _ -> Nothing
+    (ifStm , rest) -> case breakOnElse ([],rest) 0 of
+        (thenStm, "else":"(":elseStm) -> ([NoopStm],[])
+        (thenStm, "else":elseStm) -> case break (==";") elseStm of
+            (elseStm, ";":_) -> ([If (fst(parseBexp ifStm)) NoopStm NoopStm],[])
+            _ -> ([NoopStm],[])           
+        (_,[]) -> ([NoopStm],[])
+    _-> ([NoopStm],[])
 
-    _-> Nothing
-    
-    
-    
-    parseBexp tokens of
-    Just (bexp, "then":tokens') -> case parseProgram tokens' of
-        Just (program1, "else":tokens'') -> case parseProgram tokens'' of
-            Just (program2, tokens''') -> Just ([If bexp program1 program2], tokens''')
-            _ -> Nothing
-        _ -> Nothing
-    _ -> Nothing
--}
 {-
 parseProgram :: Parser Program
 parseProgram [] = Just ([], [])
