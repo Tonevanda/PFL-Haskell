@@ -105,7 +105,7 @@ The **Program** type is a list of statements.
 
 ## Interpreter
 
-To implement the interpreter for this imperative language, we applied pattern-matching to the run function, check the head of the **Code** list for every possible instruction and executing it accordingly.
+To implement the interpreter for this imperative language, we applied pattern-matching to the run function, checking the head of the **Code** list for every possible instruction and executing it accordingly.
 
 We also used the same pattern-matching strategy to check if the stack had invalid arguments for a certain instruction, and if so we throw a **Run-time error**.
 
