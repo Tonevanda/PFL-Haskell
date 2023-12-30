@@ -45,7 +45,7 @@ The **Inst** data type represents the intructions supported by this small impera
 
 The type **Code** was defined to represent the list of instructions, in other words, the code that is going to be processed.
 
-More information on the details of each instruction [here](#first-part)
+More information on the details of each instruction [here](#instructions)
 
 
 ### Stack
