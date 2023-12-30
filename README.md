@@ -27,21 +27,21 @@ We have created several different data structures to support and facilitate the 
 
 The **Inst** data type represents the intructions supported by this small imperative language. It includes the following instructions:
 
-- Push **Integer**, which pushes a constant onto the stack
-- Add, which adds the two topmost elements of the stack
-- Mult, which multiplies the two topmost elements of the stack 
-- Sub, which substracts the two topmost elements of the stack
-- Tru, which pushes the constant TT onto the stack
-- Fals, which pushes the constant FF onto the stack
-- Equ, which compares the equality of the two topmost elements of the stack
-- Le, which checks if the topmost element of the stack is less or equal to the second topmost element of the stack
-- And, which does the logical **AND** operation on the two topmost elements of the stack 
-- Neg, which does the logical negation on the topmost element of the stack 
-- Fetch **String**, which retrieves a variable from the storage
-- Store **String**, which stores a variable in the storage
-- Noop, which is a dummy operation 
-- Branch **Code** **Code**, which branches the code depending on the truth value on top of the stack
-- Loop **Code** **Code**, which represents a while loop.
+- Push **Integer**
+- Add
+- Mult
+- Sub
+- Tru
+- Fals
+- Equ
+- Le
+- And
+- Neg
+- Fetch **String**
+- Store **String**
+- Noop
+- Branch **Code** **Code**
+- Loop **Code** **Code**
 
 The type **Code** was defined to represent the list of instructions, in other words, the code that is going to be processed.
 
