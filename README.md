@@ -125,10 +125,6 @@ If this pattern for the **Le** run function does not match, it means the two top
 
 The following is every instruction along with a more in-depth explanation of how it works:
 
-- The `createEmptyStack` function returns an empty machine’s stack.
-- The `createEmptyState` function returns an empty machine’s state, using the **HashMap.empty** function.
-- The `stack2Str` function converts a stack given as input to a string using intercalate and map functions.
-- The `state2Str` function converts a state given as input to a string using intercalate and map functions along with the sort function, to sort the state in alphabetical order.
 - The `add` function adds the top two integer values of the stack and pushes the result onto the top of the stack.
 - The `mult` function multiplies the top two integer values of the stack and pushes the result onto the top of the stack.
 - The `sub` function subtracts the topmost element of the stack with the second topmost element of the stack, and pushes the result onto the top of the stack.
