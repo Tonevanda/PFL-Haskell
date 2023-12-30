@@ -139,6 +139,28 @@ The following is every instruction along with a more in-depth explanation of how
 - The `loop(c1,c2)` function can be interpreted as a **while** loop. The semantics of this instruction are defined by rewriting it to a combination of other constructs, including the branch instruction and itself. For example, `loop(c1, c2)` may be transformed into `c1 ++ [branch([c2, loop(c1, c2)], [noop])]`.
 - The `noop` function returns the **Stack** and **State**.
 
+## Compiler
+
+With the compiler, we also used pattern-matching for each type of expression. The following is the example of the `compB` function, which handles the compiling of the boolean expressions, after the code has been parsed:
+
+```haskell
+compB :: Bexp -> Code
+compB Tr = [Tru]
+compB Fls = [Fals]
+compB (Not bexp) = compB bexp ++ [Neg]
+compB (AndExp b1 b2) = compB b2 ++ compB b1 ++ [And]
+compB (LeExp a1 a2) = compA a2 ++ compA a1 ++ [Le]
+compB (EquExp a1 a2) = compB a2 ++ compB a1 ++ [Equ]
+compB (DoubleEqu a1 a2) = compA a2 ++ compA a1 ++ [Equ]
+```
+
+As we can see, the `compB` receives a boolean expression **Bexp** and maps it to the correct instruction to be ran by the interpreter.
+
+Also, because the **stack** is **Last-In-First-Out**, we need to first compute the second expression and only then the first. This is not noticeable in the **And** or **Equ** expressions, but it is regarding **Le**. Since 43 <= 44, for example, will first push to the stack 43 and then 44, if not computed in reverse order, the **Le** interpreter function would compute 44 <= 43, since **Le** checks if the topmost element of the stack is less than or equal to the second topmost element, not the other way around. By computing the expressions in reverse order we circunvent this issue. 
+
+Also, because the operator to check the equality of Integer values and booleans is different, "==" and "=" respectively, we needed to create different expressions, as seen in **DoubleEqu** and **EquExp**.
+Although both expressions call upon the **Equ** interpreter function, **EquExp** is used to compare boolean expressions, while **DoubleExp** is used to compare arithmetic expressions.
+
 ## Extra Information
 
 ### Second Part
