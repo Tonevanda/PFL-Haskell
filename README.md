@@ -153,8 +153,8 @@ If this pattern for the **Le** run function does not match, it means the two top
   - [x] *Aexp* for arithmetic expressions
   - [x] *Bexp* for boolean expressions
   - [x] *Stm* for statements
-- [ ] Define a compiler from a program in this small imperative language into a list of machine instructions. 
-  - [ ] The main compiler function: **compile**
+- [x] Define a compiler from a program in this small imperative language into a list of machine instructions. 
+  - [x] The main compiler function: **compile**
   - [x] A function that compiles arithmetic expressions: **compA**
   - [x] A function that compiles boolean expressions: **compB**
 - [x] Define an auxiliary function called **lexer** that splits the string into a list of words. Example: **lexer ”23 + 4 * 421” = [”23”,”+”,”4”,”*”,”421”]**
