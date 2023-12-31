@@ -93,3 +93,5 @@ data Stm
     deriving Show
 
 type Program = [Stm]
+
+type Parser a = [String] -> (a)
