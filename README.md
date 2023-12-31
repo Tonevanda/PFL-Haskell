@@ -185,9 +185,11 @@ lexer ('<':'=':cs) = "<=" : lexer cs
 lexer ('=':'=':cs) = "==" : lexer cs
 lexer ('>':'=':cs) = ">=" : lexer cs
 lexer (c:cs)
-        | c `elem` " +-*;()=" = if c == ' ' then lexer cs else [c] : lexer cs
-        | otherwise = let (word, rest) = span (`notElem` " +-*;()=") (c:cs)
-                                    in word : lexer rest
+    | c `elem` " +-*;()=" = if c == ' ' then lexer cs else [c] : lexer cs
+    | otherwise = let (word, rest) = span (`notElem` " +-*;():=<") (c:cs)
+                  in case rest of
+                       (':':'=':rs) -> word : ":=" : lexer rs
+                       _ -> word : lexer rest
 ```
 
 For cases where operators are composed of more than 1 character, such as the assignment operator "**:=**", we used pattern-matching to manually concatenate the characters into a single one.
@@ -248,10 +250,10 @@ The implementation of the `parseAexp` and `parseBexp` functions are quite simila
 
 ```haskell
 parseAexp :: Parser Aexp
-parseAexp tokens = case nextValidAToken (tokens,[]) "-" of
-    (firstSegment, "-":secondSegment) -> SubExp (parseAexp firstSegment) (parseAexp secondSegment)
-    _ -> case nextValidAToken (tokens,[]) "+" of
-        (firstSegment, "+":secondSegment) -> AddExp (parseAexp firstSegment) (parseAexp secondSegment)
+parseAexp tokens = case nextValidAToken (tokens,[]) "+" of
+    (firstSegment, "+":secondSegment) -> AddExp (parseAexp firstSegment) (parseAexp secondSegment)
+    _ -> case nextValidAToken (tokens,[]) "-" of
+        (firstSegment, "-":secondSegment) -> SubExp (parseAexp firstSegment) (parseAexp secondSegment)
         _ -> case nextValidAToken (tokens,[]) "*" of
             (firstSegment, "*":secondSegment) -> MultExp (parseAexp firstSegment) (parseAexp secondSegment)
             _ -> case break isAllNumbers (reverse tokens) of
