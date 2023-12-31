@@ -16,6 +16,7 @@ breakOnElse (left, x:right) count
     | x == "else" = (left, x:right)
     | otherwise = breakOnElse (left ++ [x], right) count
 
+
 breakOnParenthesis :: ([String], [String]) -> Int -> ([String], [String])
 breakOnParenthesis (left, []) _ = (left, [])
 breakOnParenthesis (left, x:right) count
@@ -24,6 +25,7 @@ breakOnParenthesis (left, x:right) count
     | x == ")" = (left, x:right)
     | otherwise = breakOnParenthesis (left ++ [x], right) count
 
+-- Used to find the next valid token in the list of tokens
 nextValidToken :: ([String],[String]) -> String -> ([String],[String])
 nextValidToken ([], x:right) token
     | x==token = ([], x:right)
@@ -34,6 +36,7 @@ nextValidToken (left, x:right) token
     | x == token && check left = (left , x:right)
     | otherwise = nextValidToken (init left , last left:x:right) token
 
+-- Similar to nextValidToken, but used strictly for parsing arithmetic expressions
 nextValidAToken :: ([String],[String]) -> String -> ([String],[String])
 nextValidAToken ([], x:right) token
     | x==token = ([], x:right)
@@ -43,15 +46,10 @@ nextValidAToken (left, x:right) token
     | x == token && check left = (left , x:right)
     | otherwise = nextValidAToken (init left , last left:x:right) token
 
+-- Checks if the parenthesis are balanced
 check :: [String] -> Bool
-check [] = True
-check (x:xs)
-    | x == "(" = check' xs 1
-    | otherwise = check xs
-
-check' :: [String] -> Int -> Bool
-check' [] count = count <= 0
-check' (x:xs) count
-    | x == "(" = check' xs (count + 1)
-    | x == ")" = check' xs (count - 1)
-    | otherwise = check' xs count
+check = (== 0) . foldl updateCount 0
+  where
+    updateCount count "(" = count + 1
+    updateCount count ")" = max 0 (count - 1)
+    updateCount count _   = count
