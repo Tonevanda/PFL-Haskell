@@ -28,7 +28,7 @@ compile program = concatMap compileStm program
         compileStm (Assign var aexp) = compA aexp ++ [Store var]
         compileStm (If bexp stm1 stm2) = compB bexp ++ [Branch (compile stm1) (compile stm2)]
         compileStm (While bexp program) = [Loop (compB bexp) (compile program)]
-        compileStm NoopStm = []
+
 
 
 lexer :: String -> [String]
@@ -49,25 +49,25 @@ isAllLetters = all isAlpha
 isAllNumbers :: String -> Bool
 isAllNumbers = all isDigit
 
-type Parser a = [String] -> (a, [String])
+type Parser a = [String] -> (a)
 
 parseProgram :: Parser Program
-parseProgram [] = ([], [])
+parseProgram [] = []
 parseProgram (firstToken:tokens)
     | firstToken == "if" = parseIf (firstToken:tokens)
     | firstToken == "while" = parseWhile (firstToken:tokens)
     | otherwise = case break (== ";") (firstToken:tokens) of
-        (firstStm, ";":second) -> (fst (parseStm firstStm): fst (parseProgram second) , [])
-        _ -> ([NoopStm],[])
+        (firstStm, ";":second) -> parseAssign firstStm: parseProgram second
+
 
 parseWhile :: Parser Program
 parseWhile ("while":tokens) = case break (== "do") tokens of
-    (whileStm, "do":"(":after) -> 
+    (whileStm, "do":"(":after) ->
         let (doStm,")":";":next) = breakOnParenthesis ([],after) 0
-        in (While (fst (parseBexp whileStm)) (fst (parseProgram doStm)): fst (parseProgram next),[])
-    (whileStm, "do":doStm) -> ([While (fst (parseBexp whileStm)) [fst (parseStm doStm)]],[])
-    _ -> ([NoopStm],[])
-    
+        in (While (parseBexp whileStm) (parseProgram doStm):parseProgram next)
+    (whileStm, "do":doStm) -> [While (parseBexp whileStm) [parseAssign doStm]]
+
+
 
 parseIf :: Parser Program
 parseIf ("if":tokens) = case break (=="then") tokens of
@@ -75,56 +75,54 @@ parseIf ("if":tokens) = case break (=="then") tokens of
         ("then":"(":thenStm', "else":"(":elseStm') ->
             let ")":thenStm = reverse thenStm'
                 (elseStm,")":";":next) = breakOnParenthesis ([],elseStm') 0
-            in (If (fst (parseBexp ifStm)) (fst (parseProgram (reverse thenStm))) (fst (parseProgram elseStm)): fst (parseProgram next),[])
+            in If (parseBexp ifStm) (parseProgram (reverse thenStm)) (parseProgram elseStm):parseProgram next
         ("then":"(":thenStm', "else":elseStm) ->
             let ")":thenStm = reverse thenStm'
-            in ([If (fst (parseBexp ifStm)) (fst (parseProgram (reverse thenStm))) [fst (parseStm elseStm)]],[])
+            in [If (parseBexp ifStm) (parseProgram (reverse thenStm)) [parseAssign elseStm]]
         ("then":thenStm, "else":"(":elseStm') ->
             let (elseStm,")":";":next) = breakOnParenthesis ([],elseStm') 0
-            in (If (fst (parseBexp ifStm)) [fst (parseStm thenStm)] (fst (parseProgram elseStm)): fst (parseProgram next),[])
+            in (If (parseBexp ifStm) [parseAssign thenStm] (parseProgram elseStm):parseProgram next)
         ("then":thenStm, "else":elseStm) -> case break (==";") elseStm of
-            (elseStm, ";":next) -> (If (fst (parseBexp ifStm)) [fst (parseStm thenStm)] [fst (parseStm elseStm)] : fst (parseProgram next),[])
-            _ -> ([NoopStm],[])
-        (_,[]) -> ([NoopStm],[])
-    _-> ([NoopStm],[])
+            (elseStm, ";":next) -> If (parseBexp ifStm) [parseAssign thenStm] [parseAssign elseStm]:parseProgram next
+
 
 parseBexp :: Parser Bexp
 parseBexp tokens = case nextValidToken (tokens,[]) "and" of
-    (firstSegment, "and":secondSegment) -> (AndExp  (fst (parseBexp firstSegment)) (fst (parseBexp secondSegment)),[])
+    (firstSegment, "and":secondSegment) -> AndExp  (parseBexp firstSegment) (parseBexp secondSegment)
     _ -> case nextValidToken (tokens,[]) "=" of
-        (firstSegment, "=":secondSegment) -> (EquExp (fst (parseBexp firstSegment)) (fst (parseBexp secondSegment)),[])
+        (firstSegment, "=":secondSegment) -> EquExp (parseBexp firstSegment) (parseBexp secondSegment)
         _ -> case nextValidToken (tokens,[]) "not" of
-            (_,"not":secondSegment) -> (Not (fst (parseBexp secondSegment)),[])
+            (_,"not":secondSegment) -> Not (parseBexp secondSegment)
             _ -> case nextValidToken (tokens,[]) "==" of
-                (firstSegment, "==":secondSegment) -> (DoubleEqu (fst (parseAexp firstSegment)) (fst (parseAexp secondSegment)),[])
+                (firstSegment, "==":secondSegment) -> DoubleEqu (parseAexp firstSegment) (parseAexp secondSegment)
                 _ -> case nextValidToken (tokens,[]) "<=" of
-                    (firstSegment, "<=":secondSegment) -> (LeExp (fst (parseAexp firstSegment)) (fst (parseAexp secondSegment)),[])
+                    (firstSegment, "<=":secondSegment) -> LeExp (parseAexp firstSegment) (parseAexp secondSegment)
                     _ -> case break (== "True") (reverse tokens) of
-                        (_, "True":firstSegment) | check (reverse firstSegment) -> (Tr,[])
+                        (_, "True":firstSegment) | check (reverse firstSegment) -> Tr
                         _ -> case break (== "False") (reverse tokens) of
-                            (_, "False":firstSegment) | check (reverse firstSegment) -> (Fls,[])
+                            (_, "False":firstSegment) | check (reverse firstSegment) -> Fls
                             _->case break (== "(") (reverse tokens) of
                                 (middleAfter, "(":_) -> case break (==")") (reverse middleAfter) of
                                     (middle, ")":_) -> parseBexp middle
-                                    _ -> (Fls,[])
-                                _->(Fls,[])
+                                    _ -> Fls
+                                _->Fls
 
 parseAexp :: Parser Aexp
 parseAexp tokens = case nextValidAToken (tokens,[]) "-" of
-    (firstSegment, "-":secondSegment) -> (SubExp (fst (parseAexp firstSegment)) (fst (parseAexp secondSegment)),[])
+    (firstSegment, "-":secondSegment) -> SubExp (parseAexp firstSegment) (parseAexp secondSegment)
     _ -> case nextValidAToken (tokens,[]) "+" of
-        (firstSegment, "+":secondSegment) -> (AddExp (fst (parseAexp firstSegment)) (fst (parseAexp secondSegment)),[])
+        (firstSegment, "+":secondSegment) -> AddExp (parseAexp firstSegment) (parseAexp secondSegment)
         _ -> case nextValidAToken (tokens,[]) "*" of
-            (firstSegment, "*":secondSegment) -> (MultExp (fst (parseAexp firstSegment)) (fst (parseAexp secondSegment)),[])
+            (firstSegment, "*":secondSegment) -> MultExp (parseAexp firstSegment) (parseAexp secondSegment)
             _ -> case break isAllNumbers (reverse tokens) of
-                (_, number:firstSegment) | check (reverse firstSegment) -> (Num (read number),[])
+                (_, number:firstSegment) | check (reverse firstSegment) -> Num (read number)
                 _ -> case break isAllLetters (reverse tokens) of
-                    (_, name:firstSegment) | check (reverse firstSegment) -> (Var name,[])
+                    (_, name:firstSegment) | check (reverse firstSegment) -> Var name
                     _->case break (== "(") (reverse tokens) of
                         (middleAfter, "(":_) -> case break (==")") (reverse middleAfter) of
                             (middle, ")":_) -> parseAexp middle
-                            _ -> (Num 0,[])
-                        _->(Num 0,[])
+                            _ -> Num 0
+                        _-> Num 0
 
 
 breakOnElse :: ([String], [String]) -> Int -> ([String], [String])
@@ -145,7 +143,7 @@ breakOnParenthesis (left, x:right) count
 
 
 nextValidToken :: ([String],[String]) -> String -> ([String],[String])
-nextValidToken ([], x:right) token 
+nextValidToken ([], x:right) token
     | x==token = ([], x:right)
 nextValidToken ([], right) _ = ([], right)
 nextValidToken ("(":left, []) token = nextValidToken (init left , [last left]) token
@@ -155,7 +153,7 @@ nextValidToken (left, x:right) token
     | otherwise = nextValidToken (init left , last left:x:right) token
 
 nextValidAToken :: ([String],[String]) -> String -> ([String],[String])
-nextValidAToken ([], x:right) token 
+nextValidAToken ([], x:right) token
     | x==token = ([], x:right)
 nextValidAToken ([], right) _ = ([], right)
 nextValidAToken (left, []) token = nextValidAToken (init left , [last left]) token
@@ -176,11 +174,8 @@ check' (x:xs) count
     | x == ")" = check' xs (count - 1)
     | otherwise = check' xs count
 
-parseStm :: Parser Stm
-parseStm (token:":=":tokens) = case parseAexp tokens of
-    (aexp, tokens') -> (Assign token aexp, tokens')
-    _ -> (NoopStm, [])
-parseStm _ = (NoopStm, [])
+parseAssign :: Parser Stm
+parseAssign (token:":=":tokens) = Assign token (parseAexp tokens)
 
 parse :: String -> Program
-parse programCode = fst (parseProgram (lexer programCode))
+parse programCode = parseProgram (lexer programCode)

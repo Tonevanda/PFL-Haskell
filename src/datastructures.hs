@@ -90,7 +90,6 @@ data Stm
     = Assign String Aexp  -- assignment
     | If Bexp Program Program     -- if statement
     | While Bexp Program      -- while loop
-    | NoopStm                -- do nothing
     deriving Show
 
 type Program = [Stm]
