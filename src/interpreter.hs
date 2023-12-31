@@ -49,6 +49,6 @@ run (Branch code1 code2:remainingCode, TT:remainingStack, state) = run (code1++r
 run (Branch code1 code2:remainingCode, FF:remainingStack, state) = run (code2++remainingCode, remainingStack, state)
 run (Branch code1 code2:remainingCode, IntValue i:remainingStack, state) = error "Run-time error"
 
-run (Loop code1 code2:remainingCode, stack, state) = run (code1 ++ [Branch (code2 ++ [Loop code1 code2]) [Noop]], stack, state)
+run (Loop code1 code2:remainingCode, stack, state) = run (code1 ++ [Branch (code2 ++ [Loop code1 code2]) [Noop]] ++ remainingCode, stack, state)
 
 run (Noop:remainingCode, stack, state) = run (remainingCode, stack, state)
