@@ -221,3 +221,60 @@ We broke down the parsing into different functions, for specific statements and 
 - For parsing while statements, we created `parseWhile`
 - For parsing assignment statements, we created `parseAssign`
 - Finally, the root function `parse`, which calls the `lexer` function on the program code and passes the list of tokens to the `parseProgram` function
+
+The generalized flow of code starts in the `parseProgram` function where it takes into account 3 diferent cases:
+
+- The statement is an If Then Else, in which case we call the `parseIf` function
+- The statement is a While Do, in which case we call the `parseWhile` function
+- The statement is an assignment, in which case we call the `parseAssign` function
+
+We do this because these statements need to be parsed differently, since they are composed of different code blocks. Since the If and While statements contain blocks of code inside them, it means there is a possibility of nesting code blocks, in which case we needed to implement a recursive way to process the code inside these code blocks while taking into account that they could have If and While statements themselves.
+
+#### ParseIf
+
+The `parseIf` function divides the code string into 4 segments:
+
+- **ifStm**, which contains the boolean expression evaluted inside the if block
+- **thenStm**, which pertains to the code block inside the **then**
+- **elseStm**, which pertains to the code block inside the **else**
+- **next**, which represents the rest of the code to be processed after the **IfThenElse**
+
+
+For the purpose of dividing the **then** and **else** we created a helper function `breakOnElse` that finds where the **else** code block begins. Then, to determine where the **else** code block ends (in case it has more than one statement) we created the `breakOnParenthesis` function that finds the closing parenthesis of the **else** code block. We do this because, if the **else** code block has more than 1 statement, the statements are enclosed inside parenthesis.
+
+#### ParseWhile
+
+Our approach to the **while** statement is similar, although slightly simpler. Unlike the **IfThenElse**, where there are 2 code blocks, with the **while** statement we just needed to call the `breakOnParenthesis` function to determine the end of the **do** code block.
+
+#### ParseAexp and ParseBexp
+
+The implementation of the `parseAexp` and `parseBexp` functions are quite similar to each other. They check the list of tokens in reverse order of priority, meaning they look for the lowest priority tokens first. Following is the implementation of the `parseAexp` function:
+
+```haskell
+parseAexp :: Parser Aexp
+parseAexp tokens = case nextValidAToken (tokens,[]) "-" of
+    (firstSegment, "-":secondSegment) -> SubExp (parseAexp firstSegment) (parseAexp secondSegment)
+    _ -> case nextValidAToken (tokens,[]) "+" of
+        (firstSegment, "+":secondSegment) -> AddExp (parseAexp firstSegment) (parseAexp secondSegment)
+        _ -> case nextValidAToken (tokens,[]) "*" of
+            (firstSegment, "*":secondSegment) -> MultExp (parseAexp firstSegment) (parseAexp secondSegment)
+            _ -> case break isAllNumbers (reverse tokens) of
+                (_, number:firstSegment) | check (reverse firstSegment) -> Num (read number)
+                _ -> case break isAllLetters (reverse tokens) of
+                    (_, name:firstSegment) | check (reverse firstSegment) -> Var name
+                    _->case break (== "(") (reverse tokens) of
+                        (middleAfter, "(":_) -> case break (==")") (reverse middleAfter) of
+                            (middle, ")":_) -> parseAexp middle
+```
+
+For every token, we use a **case of**, where, if the token has been found, we add the respective instruction to the list of instructions to be compiled, with the according operands.
+If the token has not been found, we call another **case of** to find the next token.<br>
+We repeat this process until we have exhausted every possibility. This way, the functions have a cascading **case of** implementation.<br> 
+To help with finding the tokens, we created a helper function called `nextValidToken`, which checks the code for the next instance of a token, passed as input, that isn't inside parenthesis. 
+
+In the priority list, when it comes to finding operations that don't have dependencies, as in instructions with no recursive callback, such as single numbers (**Num i**) or True (**Tr**), for example, we created a faster alternative function called `check`
+
+Finally, after all other tokens have been exhausted, we check for the parenthesis and recursively repeat this process for the code inside them. 
+
+
+In the end, after the code has successfully been parsed, it is sent to the `compile` function to map the expressions to their respective instructions to be processed by the interpreter.
