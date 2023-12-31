@@ -32,10 +32,10 @@ compile program = concatMap compileStm program
 
 -- Parses an arithmetic expression
 parseAexp :: Parser Aexp
-parseAexp tokens = case nextValidAToken (tokens,[]) "-" of
-    (firstSegment, "-":secondSegment) -> SubExp (parseAexp firstSegment) (parseAexp secondSegment)
-    _ -> case nextValidAToken (tokens,[]) "+" of
-        (firstSegment, "+":secondSegment) -> AddExp (parseAexp firstSegment) (parseAexp secondSegment)
+parseAexp tokens = case nextValidAToken (tokens,[]) "+" of
+    (firstSegment, "+":secondSegment) -> AddExp (parseAexp firstSegment) (parseAexp secondSegment)
+    _ -> case nextValidAToken (tokens,[]) "-" of
+        (firstSegment, "-":secondSegment) -> SubExp (parseAexp firstSegment) (parseAexp secondSegment)
         _ -> case nextValidAToken (tokens,[]) "*" of
             (firstSegment, "*":secondSegment) -> MultExp (parseAexp firstSegment) (parseAexp secondSegment)
             _ -> case break isAllNumbers (reverse tokens) of
