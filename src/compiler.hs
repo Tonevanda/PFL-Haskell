@@ -2,10 +2,8 @@ module Compiler where
 
 import Datastructures
 import Auxiliary
-import Data.Char (isDigit, isAlpha)
-import Text.Parsec (tokens, token)
-import Control.Arrow (Arrow(first), ArrowChoice (right))
 
+-- Compiles an arithmetic expression into a list of instructions
 compA :: Aexp -> Code
 compA (Num i) = [Push i]
 compA (Var var) = [Fetch var]
@@ -13,6 +11,7 @@ compA (AddExp a1 a2) = compA a2 ++ compA a1 ++ [Add]
 compA (SubExp a1 a2) = compA a2 ++ compA a1 ++ [Sub]
 compA (MultExp a1 a2) = compA a2 ++ compA a1 ++ [Mult]
 
+-- Compiles a boolean expression into a list of instructions
 compB :: Bexp -> Code
 compB Tr = [Tru]
 compB Fls = [Fals]
@@ -22,6 +21,7 @@ compB (LeExp a1 a2) = compA a2 ++ compA a1 ++ [Le]
 compB (EquExp a1 a2) = compB a2 ++ compB a1 ++ [Equ]
 compB (DoubleEqu a1 a2) = compA a2 ++ compA a1 ++ [Equ]
 
+-- Main function for compiling a program
 compile :: Program -> Code
 compile program = concatMap compileStm program
     where
@@ -30,6 +30,7 @@ compile program = concatMap compileStm program
         compileStm (If bexp stm1 stm2) = compB bexp ++ [Branch (compile stm1) (compile stm2)]
         compileStm (While bexp program) = [Loop (compB bexp) (compile program)]
 
+-- Parses an arithmetic expression
 parseAexp :: Parser Aexp
 parseAexp tokens = case nextValidAToken (tokens,[]) "-" of
     (firstSegment, "-":secondSegment) -> SubExp (parseAexp firstSegment) (parseAexp secondSegment)
@@ -45,6 +46,7 @@ parseAexp tokens = case nextValidAToken (tokens,[]) "-" of
                         (middleAfter, "(":_) -> case break (==")") (reverse middleAfter) of
                             (middle, ")":_) -> parseAexp middle
 
+-- Parses a boolean expression
 parseBexp :: Parser Bexp
 parseBexp tokens = case nextValidToken (tokens,[]) "and" of
     (firstSegment, "and":secondSegment) -> AndExp  (parseBexp firstSegment) (parseBexp secondSegment)
@@ -64,6 +66,7 @@ parseBexp tokens = case nextValidToken (tokens,[]) "and" of
                                 (middleAfter, "(":_) -> case break (==")") (reverse middleAfter) of
                                     (middle, ")":_) -> parseBexp middle
 
+-- Parses an if statement
 parseIf :: Parser Program
 parseIf ("if":tokens) = case break (=="then") tokens of
     (ifStm , rest) -> case breakOnElse ([],rest) 0 of
@@ -80,6 +83,7 @@ parseIf ("if":tokens) = case break (=="then") tokens of
         ("then":thenStm, "else":elseStm) -> case break (==";") elseStm of
             (elseStm, ";":next) -> If (parseBexp ifStm) [parseAssign thenStm] [parseAssign elseStm]:parseProgram next
 
+-- Parses a while statement
 parseWhile :: Parser Program
 parseWhile ("while":tokens) = case break (== "do") tokens of
     (whileStm, "do":"(":after) ->
@@ -87,9 +91,11 @@ parseWhile ("while":tokens) = case break (== "do") tokens of
         in (While (parseBexp whileStm) (parseProgram doStm):parseProgram next)
     (whileStm, "do":doStm) -> [While (parseBexp whileStm) [parseAssign doStm]]
 
+-- Parses an assignment statement
 parseAssign :: Parser Stm
 parseAssign (token:":=":tokens) = Assign token (parseAexp tokens)
 
+-- Main helper function for parsing a program
 parseProgram :: Parser Program
 parseProgram [] = []
 parseProgram (firstToken:tokens)
@@ -98,9 +104,11 @@ parseProgram (firstToken:tokens)
     | otherwise = case break (== ";") (firstToken:tokens) of
         (firstStm, ";":second) -> parseAssign firstStm: parseProgram second
 
+-- Parses a string with code into a program
 parse :: String -> Program
 parse programCode = parseProgram (lexer programCode)
 
+-- Lexes a string into a list of tokens
 lexer :: String -> [String]
 lexer [] = []
 lexer (':':'=':cs) = ":=" : lexer cs
