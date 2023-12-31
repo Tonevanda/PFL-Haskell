@@ -1,11 +1,6 @@
 # Assembly compiler in Haskell
 
-## Developers
-
-This project was developed by the group T1_G08, composed by:
-
-- João Miguel da Silva Lourenço (up202108863) 50%
-- Tomás Filipe Fernandes Xavier (up202108759) 50%
+The goal of this project is to develop an interpreter and compiler for a small imperative language for a low-level machine with configurations of the form (***c***, ***e***, ***s***) where ***c*** is a list of instructions to be executed, ***e*** is the evaluation stack, and ***s*** is the storage.
 
 ## Instalation and Execution
 
@@ -296,3 +291,10 @@ Finally, after all other tokens have been exhausted, we check for the parenthesi
 
 
 In the end, after the code has successfully been parsed, it is sent to the `compile` function to map the expressions to their respective instructions to be processed by the interpreter.
+
+## Developers
+
+This project was developed by the group T1_G08, composed by:
+
+- João Miguel da Silva Lourenço (up202108863) 50%
+- Tomás Filipe Fernandes Xavier (up202108759) 50%
