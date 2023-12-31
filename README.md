@@ -161,23 +161,64 @@ Also, because the **stack** is **Last-In-First-Out**, we need to first compute t
 Also, because the operator to check the equality of Integer values and booleans is different, "==" and "=" respectively, we needed to create different expressions, as seen in **DoubleEqu** and **EquExp**.
 Although both expressions call upon the **Equ** interpreter function, **EquExp** is used to compare boolean expressions, while **DoubleExp** is used to compare arithmetic expressions.
 
-## Extra Information
+The main `compile` function looks like this:
 
-### Second Part
+```haskell
+compile :: Program -> Code
+compile program = concatMap compileStm program
+    where
+        compileStm :: Stm -> Code
+        compileStm (Assign var aexp) = compA aexp ++ [Store var]
+        compileStm (If bexp stm1 stm2) = compB bexp ++ [Branch (compile stm1) (compile stm2)]
+        compileStm (While bexp program) = [Loop (compB bexp) (compile program)]
+        compileStm NoopStm = []
+```
 
-- [x] Define three datas in Haskell to represent expressions and statements of this imperative language:
-  - [x] *Aexp* for arithmetic expressions
-  - [x] *Bexp* for boolean expressions
-  - [x] *Stm* for statements
-- [ ] Define a compiler from a program in this small imperative language into a list of machine instructions. 
-  - [ ] The main compiler function: **compile**
-  - [x] A function that compiles arithmetic expressions: **compA**
-  - [x] A function that compiles boolean expressions: **compB**
-- [x] Define an auxiliary function called **lexer** that splits the string into a list of words. Example: **lexer ”23 + 4 * 421” = [”23”,”+”,”4”,”*”,”421”]**
-- [ ] Define a parser which transforms an imperative program represented as a string into its corresponding representation in the ***Stm*** data (a list of statements *Stm*). The string representing the program has the following synctactic constraints:
-  - [ ] All statements end with a semicolon (;)
-  - [ ] The string must contain spaces between each element, but does not include newlines nor tabs
-  - [ ] Variables begin with a lowercase letter (assume that no variable name can contain a reserved keyword as a substring. For instance, anotherVar is an invalid variable name as it contains the keyword not)
-  - [ ] Operator precedence in arithmetic expressions is the usual: multiplications are performed before additions and subtractions. Additions and subtractions have the same level of precedence and are executed from left to right (i.e. they are left-associative). Multiplications are also left-associative
-  - [ ] Parentheses may be used to add priority to an operation. For instance, 1+2*3 = 7 but (1+2)*3 = 9
-  - [ ] In boolean expressions, two instances of the same operator are also computed from left to right. The order of precedence for the operations is (with the first one being executed first): integer inequality (≤), integer equality (==), logical negation (not), boolean equality (=), logical conjunction (and). For instance, not True and 2 ≤ 5 = 3 == 4 is equivalent to (not True) and ((2 ≤ 5) = (3 == 4))
+Here, we use the `concatMap` function to map and concatenate every statement in the program using the `compileStm` function.
+
+The `compileStm :: Stm -> Code` function takes a statement and correctly maps it to its respective interpreter function, calling upon the other compiler functions, `compA` and `compB`, to process the arithmetic and boolean expressions.
+
+### Parser
+
+To parse the source code, firstly we developed the `lexer` function, to separate the code into different tokens:
+
+```haskell
+lexer :: String -> [String]
+lexer [] = []
+lexer (':':'=':cs) = ":=" : lexer cs
+lexer ('<':'=':cs) = "<=" : lexer cs
+lexer ('=':'=':cs) = "==" : lexer cs
+lexer ('>':'=':cs) = ">=" : lexer cs
+lexer (c:cs)
+        | c `elem` " +-*;()=" = if c == ' ' then lexer cs else [c] : lexer cs
+        | otherwise = let (word, rest) = span (`notElem` " +-*;()=") (c:cs)
+                                    in word : lexer rest
+```
+
+For cases where operators are composed of more than 1 character, such as the assignment operator "**:=**", we used pattern-matching to manually concatenate the characters into a single one.
+
+For simplicity's sake, we created a type `Parser`:
+
+```haskell
+type Parser a = [String] -> a
+```
+
+This type generalizes the function type for the auxiliary parser functions, and allows us to write functions like:
+
+```haskell
+parseAexp :: Parser Aexp
+parseBexp :: Parser Bexp
+```
+
+This helps make the function types a little clearer and more readable.
+
+
+We broke down the parsing into different functions, for specific statements and expressions:
+
+- The main helper function, `parseProgram`
+- For parsing arithmetic expressions, we created `parseAexp`
+- For parsing boolean expressions, we created `parseBexp`
+- For parsing if statements, we created `parseIf`
+- For parsing while statements, we created `parseWhile`
+- For parsing assignment statements, we created `parseStm`
+- Finally, the root function `parse`, which calls the `lexer` function on the program code and passes the list of tokens to the `parseProgram` function
