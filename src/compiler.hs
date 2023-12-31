@@ -17,10 +17,10 @@ compB :: Bexp -> Code
 compB Tr = [Tru]
 compB Fls = [Fals]
 compB (Not bexp) = compB bexp ++ [Neg]
-compB (AndExp b1 b2) = compB b1 ++ compB b2 ++ [And]
+compB (AndExp b1 b2) = compB b2 ++ compB b1 ++ [And]
 compB (LeExp a1 a2) = compA a2 ++ compA a1 ++ [Le]
-compB (EquExp a1 a2) = compB a1 ++ compB a2 ++ [Equ]
-compB (DoubleEqu a1 a2) = compA a1 ++ compA a2 ++ [Equ]
+compB (EquExp a1 a2) = compB a2 ++ compB a1 ++ [Equ]
+compB (DoubleEqu a1 a2) = compA a2 ++ compA a1 ++ [Equ]
 
 compile :: Program -> Code
 compile program = concatMap compileStm program
