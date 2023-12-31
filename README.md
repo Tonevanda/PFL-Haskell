@@ -220,5 +220,5 @@ We broke down the parsing into different functions, for specific statements and 
 - For parsing boolean expressions, we created `parseBexp`
 - For parsing if statements, we created `parseIf`
 - For parsing while statements, we created `parseWhile`
-- For parsing assignment statements, we created `parseStm`
+- For parsing assignment statements, we created `parseAssign`
 - Finally, the root function `parse`, which calls the `lexer` function on the program code and passes the list of tokens to the `parseProgram` function
