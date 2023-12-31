@@ -65,6 +65,7 @@ We created 4 functions pertaining to the **State**:
 - `pairToString :: (String, StackValue) -> String`. This functions is similar to the `stackValueToString` function, where its goal is to map a pair from the **State** to a printable value on the terminal, using pattern-matching.
 - `createEmptyState :: State`. Also very self-explanatory, creates an empty state using the `HashMap.empty` function
 - `insertIntoState :: Key -> Value -> State -> State`. This function calls the `HashMap.insert` function to insert a Key Value pair into the state
+- `lookupState :: String -> State -> Maybe Value`. This function calls the `HashMap.lookup` function to look up a key in the **State**. If it exists, it returns its respective value, otherwise throws a **Run-time error**
 - `state2Str :: State -> String`. Similar to the `stack2Str` function. Iterates through the state and prints it to the terminal.
 
 
@@ -271,18 +272,11 @@ In the priority list, when it comes to finding operations that don't have depend
 
 ```haskell
 check :: [String] -> Bool
-check [] = True
-check (x:xs)
-    | x == "(" = check' xs 1
-    | otherwise = check xs
-
-check' :: [String] -> Int -> Bool
-check' [] count = count <= 0
-check' (x:xs) count
-    | x == "(" = check' xs (count + 1)
-    | x == ")" = check' xs (count - 1)
-    | otherwise = check' xs count
-
+check = (== 0) . foldl updateCount 0
+  where
+    updateCount count "(" = count + 1
+    updateCount count ")" = max 0 (count - 1)
+    updateCount count _   = count
 ```
 
 `check` is a simple helper function that checks for balanced parenthesis, essentially keeping count of the **depth** of parenthesis. After it finishes iterating through the list, if the **count** is larger than 0, it means we are currently at a different **depth** than the code that was being processed.
