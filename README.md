@@ -272,7 +272,25 @@ If the token has not been found, we call another **case of** to find the next to
 We repeat this process until we have exhausted every possibility. This way, the functions have a cascading **case of** implementation.<br> 
 To help with finding the tokens, we created a helper function called `nextValidToken`, which checks the code for the next instance of a token, passed as input, that isn't inside parenthesis. 
 
-In the priority list, when it comes to finding operations that don't have dependencies, as in instructions with no recursive callback, such as single numbers (**Num i**) or True (**Tr**), for example, we created a faster alternative function called `check`
+In the priority list, when it comes to finding operations that don't have dependencies, as in instructions with no recursive callback, such as single numbers (**Num i**) or True (**Tr**), for example, we created a faster alternative function called `check`:
+
+```haskell
+check :: [String] -> Bool
+check [] = True
+check (x:xs)
+    | x == "(" = check' xs 1
+    | otherwise = check xs
+
+check' :: [String] -> Int -> Bool
+check' [] count = count <= 0
+check' (x:xs) count
+    | x == "(" = check' xs (count + 1)
+    | x == ")" = check' xs (count - 1)
+    | otherwise = check' xs count
+
+```
+
+`check` is a simple helper function that checks for balanced parenthesis, essentially keeping count of the **depth** of parenthesis. After it finishes iterating through the list, if the **count** is larger than 0, it means we are currently at a different **depth** than the code that was being processed.
 
 Finally, after all other tokens have been exhausted, we check for the parenthesis and recursively repeat this process for the code inside them. 
 
