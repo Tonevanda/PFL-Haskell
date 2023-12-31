@@ -75,7 +75,7 @@ We created 4 functions pertaining to the **State**:
 
 ### Program
 
-To represent the **Program** to be compiled we created several different data types, namely **Aexp**, which represents **Arithmetic** expressions, **Bexp**, which represents **Boolean** expressions, and **Stm**, which represents the statements of this imperative language, **Assign**, **If**, **While** and **NoopStm**.
+To represent the **Program** to be compiled we created several different data types, namely **Aexp**, which represents **Arithmetic** expressions, **Bexp**, which represents **Boolean** expressions, and **Stm**, which represents the statements of this imperative language, **Assign**, **If** and **While**.
 
 The **Aexp** data type contains the following:
 
@@ -171,7 +171,6 @@ compile program = concatMap compileStm program
         compileStm (Assign var aexp) = compA aexp ++ [Store var]
         compileStm (If bexp stm1 stm2) = compB bexp ++ [Branch (compile stm1) (compile stm2)]
         compileStm (While bexp program) = [Loop (compB bexp) (compile program)]
-        compileStm NoopStm = []
 ```
 
 Here, we use the `concatMap` function to map and concatenate every statement in the program using the `compileStm` function.
