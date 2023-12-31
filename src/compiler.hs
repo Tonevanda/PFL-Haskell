@@ -116,6 +116,8 @@ lexer ('<':'=':cs) = "<=" : lexer cs
 lexer ('=':'=':cs) = "==" : lexer cs
 lexer ('>':'=':cs) = ">=" : lexer cs
 lexer (c:cs)
-        | c `elem` " +-*;()=" = if c == ' ' then lexer cs else [c] : lexer cs
-        | otherwise = let (word, rest) = span (`notElem` " +-*;()=") (c:cs)
-                                    in word : lexer rest
+    | c `elem` " +-*;()=" = if c == ' ' then lexer cs else [c] : lexer cs
+    | otherwise = let (word, rest) = span (`notElem` " +-*;():=<") (c:cs)
+                  in case rest of
+                       (':':'=':rs) -> word : ":=" : lexer rs
+                       _ -> word : lexer rest
