@@ -1,6 +1,7 @@
 module Compiler where
 
 import Datastructures
+import Auxiliary
 import Data.Char (isDigit, isAlpha)
 import Text.Parsec (tokens, token)
 import Control.Arrow (Arrow(first), ArrowChoice (right))
@@ -29,60 +30,6 @@ compile program = concatMap compileStm program
         compileStm (If bexp stm1 stm2) = compB bexp ++ [Branch (compile stm1) (compile stm2)]
         compileStm (While bexp program) = [Loop (compB bexp) (compile program)]
 
-isAllLetters :: String -> Bool
-isAllLetters = all isAlpha
-
-isAllNumbers :: String -> Bool
-isAllNumbers = all isDigit
-
-breakOnElse :: ([String], [String]) -> Int -> ([String], [String])
-breakOnElse (_, []) _ = ([], [])
-breakOnElse (left, x:right) count
-    | x == "if" = breakOnElse (left ++ [x], right) (count+1)
-    | x == "else" && (count /= 0) = breakOnElse (left ++ [x], right) (count-1)
-    | x == "else" = (left, x:right)
-    | otherwise = breakOnElse (left ++ [x], right) count
-
-breakOnParenthesis :: ([String], [String]) -> Int -> ([String], [String])
-breakOnParenthesis (left, []) _ = (left, [])
-breakOnParenthesis (left, x:right) count
-    | x == "(" = breakOnParenthesis (left ++ [x], right) (count+1)
-    | x == ")" && (count /= 0) = breakOnParenthesis (left ++ [x], right) (count-1)
-    | x == ")" = (left, x:right)
-    | otherwise = breakOnParenthesis (left ++ [x], right) count
-
-nextValidToken :: ([String],[String]) -> String -> ([String],[String])
-nextValidToken ([], x:right) token
-    | x==token = ([], x:right)
-nextValidToken ([], right) _ = ([], right)
-nextValidToken ("(":left, []) token = nextValidToken (init left , [last left]) token
-nextValidToken (left, []) token = nextValidToken (init left , [last left]) token
-nextValidToken (left, x:right) token
-    | x == token && check left = (left , x:right)
-    | otherwise = nextValidToken (init left , last left:x:right) token
-
-nextValidAToken :: ([String],[String]) -> String -> ([String],[String])
-nextValidAToken ([], x:right) token
-    | x==token = ([], x:right)
-nextValidAToken ([], right) _ = ([], right)
-nextValidAToken (left, []) token = nextValidAToken (init left , [last left]) token
-nextValidAToken (left, x:right) token
-    | x == token && check left = (left , x:right)
-    | otherwise = nextValidAToken (init left , last left:x:right) token
-
-check :: [String] -> Bool
-check [] = True
-check (x:xs)
-    | x == "(" = check' xs 1
-    | otherwise = check xs
-
-check' :: [String] -> Int -> Bool
-check' [] count = count <= 0
-check' (x:xs) count
-    | x == "(" = check' xs (count + 1)
-    | x == ")" = check' xs (count - 1)
-    | otherwise = check' xs count
-
 parseAexp :: Parser Aexp
 parseAexp tokens = case nextValidAToken (tokens,[]) "-" of
     (firstSegment, "-":secondSegment) -> SubExp (parseAexp firstSegment) (parseAexp secondSegment)
@@ -97,8 +44,6 @@ parseAexp tokens = case nextValidAToken (tokens,[]) "-" of
                     _->case break (== "(") (reverse tokens) of
                         (middleAfter, "(":_) -> case break (==")") (reverse middleAfter) of
                             (middle, ")":_) -> parseAexp middle
-                            _ -> Num 0
-                        _-> Num 0
 
 parseBexp :: Parser Bexp
 parseBexp tokens = case nextValidToken (tokens,[]) "and" of
@@ -118,8 +63,6 @@ parseBexp tokens = case nextValidToken (tokens,[]) "and" of
                             _->case break (== "(") (reverse tokens) of
                                 (middleAfter, "(":_) -> case break (==")") (reverse middleAfter) of
                                     (middle, ")":_) -> parseBexp middle
-                                    _ -> Fls
-                                _->Fls
 
 parseIf :: Parser Program
 parseIf ("if":tokens) = case break (=="then") tokens of
