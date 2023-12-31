@@ -59,6 +59,9 @@ createEmptyState = HashMap.empty
 insertIntoState :: Key -> Value -> State -> State
 insertIntoState = HashMap.insert
 
+lookupState :: String -> State -> Maybe Value
+lookupState = HashMap.lookup
+
 state2Str :: State -> String
 state2Str state = intercalate "," . sort $ map pairToString (toList state)
 
@@ -66,30 +69,30 @@ state2Str state = intercalate "," . sort $ map pairToString (toList state)
 --------- COMPILER --------------
 
 -- Arithmetic expressions
-data Aexp
-    = Num Integer         -- a number
-    | Var String          -- a variable
-    | AddExp Aexp Aexp       -- addition
-    | SubExp Aexp Aexp       -- subtraction
-    | MultExp Aexp Aexp       -- multiplication
+data Aexp = 
+    Num Integer             -- a number
+    | Var String            -- a variable
+    | AddExp Aexp Aexp      -- addition
+    | SubExp Aexp Aexp      -- subtraction
+    | MultExp Aexp Aexp     -- multiplication
     deriving Show
 
 -- Boolean expressions
-data Bexp
-    = Tr                 -- true
-    | Fls                 -- false
-    | Not Bexp            -- negation
-    | AndExp Bexp Bexp       -- logical and
-    | LeExp Aexp Aexp        -- less than or equal to
-    | EquExp Bexp Bexp       -- compare
-    | DoubleEqu Aexp Aexp    -- equality
+data Bexp = 
+    Tr                      -- true
+    | Fls                   -- false
+    | Not Bexp              -- negation
+    | AndExp Bexp Bexp      -- logical and
+    | LeExp Aexp Aexp       -- less than or equal to
+    | EquExp Bexp Bexp      -- boolean equality
+    | DoubleEqu Aexp Aexp   -- arithmetic equality
     deriving Show
 
 -- Statements
-data Stm
-    = Assign String Aexp  -- assignment
-    | If Bexp Program Program     -- if statement
-    | While Bexp Program      -- while loop
+data Stm =
+    Assign String Aexp              -- assignment
+    | If Bexp Program Program       -- if statement
+    | While Bexp Program            -- while loop
     deriving Show
 
 type Program = [Stm]

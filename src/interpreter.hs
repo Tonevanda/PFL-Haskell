@@ -1,7 +1,6 @@
 module Interpreter where
 
 import Datastructures
-import Data.Map.Strict as HashMap
 
 run :: (Code, Stack, State) -> (Code, Stack, State)
 run ([], stack, state) = ([], stack, state)
@@ -40,7 +39,7 @@ run (Neg:remainingCode, IntValue i:stack, state) = error "Run-time error"
 
 run (Fetch key:remainingCode, stack, state) =
     run (remainingCode, newStack, state) 
-    where newStack = case HashMap.lookup key state of
+    where newStack = case lookupState key state of
                           Just value -> value:stack
                           Nothing -> error "Run-time error"
 
