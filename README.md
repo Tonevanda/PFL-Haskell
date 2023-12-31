@@ -125,7 +125,7 @@ The following is every instruction along with a more in-depth explanation of how
 - The `mult` function multiplies the top two integer values of the stack and pushes the result onto the top of the stack.
 - The `sub` function subtracts the topmost element of the stack with the second topmost element of the stack, and pushes the result onto the top of the stack.
 - The `eq` function compares the equality of the top two values of the stack, both integers and boolean, and pushes a boolean with the comparison result onto the top of the stack. If they are equal, TT will be pushed to the stack, otherwise FF will be pushed.
-- The `le` function determines whether the topmost stack element is less or equal to the second topmost element, and pushes a boolean with the comparison result onto the top of the stack. If it is, TT will be pushed to the stack, other FF will be pushed.
+- The `le` function determines whether the topmost stack element is less or equal to the second topmost element, and pushes a boolean with the comparison result onto the top of the stack. If it is, TT will be pushed to the stack, otherwise FF will be pushed.
 - The `and` function which pops the two topmost elements on the stack and pushes onto the stack the result of the logical ***AND*** operation. This only works for booleans.
 - The `neg` function pops the topmost element on the stack and pushes onto the stack the negation of that element. This only works for booleans.
 - The `push-n` function pushes a constant value n onto the stack; true and false push the constants TT and FF, respectively, onto the stack.
