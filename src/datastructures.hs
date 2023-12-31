@@ -88,8 +88,8 @@ data Bexp
 -- Statements
 data Stm
     = Assign String Aexp  -- assignment
-    | If Bexp Stm Stm     -- if statement
-    | While Bexp Stm      -- while loop
+    | If Bexp Program Program     -- if statement
+    | While Bexp Program      -- while loop
     | NoopStm                -- do nothing
     deriving Show
 

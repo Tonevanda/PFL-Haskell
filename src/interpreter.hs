@@ -46,8 +46,8 @@ run (Fetch key:remainingCode, stack, state) =
 
 run (Store key:remainingCode, stacktop:stack, state) = run (remainingCode, stack, insertIntoState key stacktop state)
 
-run (Branch code1 code2:remainingCode, TT:remainingStack, state) = run (remainingCode++code1, remainingStack, state)
-run (Branch code1 code2:remainingCode, FF:remainingStack, state) = run (remainingCode++code2, remainingStack, state)
+run (Branch code1 code2:remainingCode, TT:remainingStack, state) = run (code1++remainingCode, remainingStack, state)
+run (Branch code1 code2:remainingCode, FF:remainingStack, state) = run (code2++remainingCode, remainingStack, state)
 run (Branch code1 code2:remainingCode, IntValue i:remainingStack, state) = error "Run-time error"
 
 run (Loop code1 code2:remainingCode, stack, state) = run (code1 ++ [Branch (code2 ++ [Loop code1 code2]) [Noop]], stack, state)
