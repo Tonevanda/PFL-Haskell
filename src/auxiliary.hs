@@ -30,21 +30,11 @@ nextValidToken :: ([String],[String]) -> String -> ([String],[String])
 nextValidToken ([], x:right) token
     | x==token = ([], x:right)
 nextValidToken ([], right) _ = ([], right)
-nextValidToken ("(":left, []) token = nextValidToken (init left , [last left]) token
 nextValidToken (left, []) token = nextValidToken (init left , [last left]) token
 nextValidToken (left, x:right) token
     | x == token && check left = (left , x:right)
     | otherwise = nextValidToken (init left , last left:x:right) token
 
--- Similar to nextValidToken, but used strictly for parsing arithmetic expressions
-nextValidAToken :: ([String],[String]) -> String -> ([String],[String])
-nextValidAToken ([], x:right) token
-    | x==token = ([], x:right)
-nextValidAToken ([], right) _ = ([], right)
-nextValidAToken (left, []) token = nextValidAToken (init left , [last left]) token
-nextValidAToken (left, x:right) token
-    | x == token && check left = (left , x:right)
-    | otherwise = nextValidAToken (init left , last left:x:right) token
 
 -- Checks if the parenthesis are balanced
 check :: [String] -> Bool

@@ -32,11 +32,11 @@ compile program = concatMap compileStm program
 
 -- Parses an arithmetic expression
 parseAexp :: Parser Aexp
-parseAexp tokens = case nextValidAToken (tokens,[]) "+" of
+parseAexp tokens = case nextValidToken (tokens,[]) "+" of
     (firstSegment, "+":secondSegment) -> AddExp (parseAexp firstSegment) (parseAexp secondSegment)
-    _ -> case nextValidAToken (tokens,[]) "-" of
+    _ -> case nextValidToken (tokens,[]) "-" of
         (firstSegment, "-":secondSegment) -> SubExp (parseAexp firstSegment) (parseAexp secondSegment)
-        _ -> case nextValidAToken (tokens,[]) "*" of
+        _ -> case nextValidToken (tokens,[]) "*" of
             (firstSegment, "*":secondSegment) -> MultExp (parseAexp firstSegment) (parseAexp secondSegment)
             _ -> case break isAllNumbers (reverse tokens) of
                 (_, number:firstSegment) | check (reverse firstSegment) -> Num (read number)
@@ -86,6 +86,10 @@ parseIf ("if":tokens) = case break (=="then") tokens of
 -- Parses a while statement
 parseWhile :: Parser Program
 parseWhile ("while":tokens) = case break (== "do") tokens of
+    ("(":whileStm, "do":"(":after) ->
+        let (doStm,")":";":next) = breakOnParenthesis ([],after) 0
+        in (While (parseBexp whileStm) (parseProgram doStm):parseProgram next)
+    ("(":whileStm, "do":doStm) -> [While (parseBexp whileStm) [parseAssign doStm]]
     (whileStm, "do":"(":after) ->
         let (doStm,")":";":next) = breakOnParenthesis ([],after) 0
         in (While (parseBexp whileStm) (parseProgram doStm):parseProgram next)
